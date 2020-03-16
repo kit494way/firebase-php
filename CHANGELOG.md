@@ -3,6 +3,7 @@
 ## Unreleased
 
 * Dropped support for PHP <7.3
+* Removed deprecated classes and methods
 
 ## 4.41.0 - 2020-03-16  
 
