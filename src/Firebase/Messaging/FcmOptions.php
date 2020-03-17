@@ -34,7 +34,7 @@ class FcmOptions implements JsonSerializable
         return $options;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return $this->data;
     }

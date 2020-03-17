@@ -13,15 +13,14 @@ use Kreait\Firebase\Tests\UnitTestCase;
  */
 class FromPathTest extends UnitTestCase
 {
-    public function testItWorks()
+    public function testItWorks(): void
     {
         $discoverer = new FromPath(self::$fixturesDir.'/ServiceAccount/valid.json');
         $discoverer();
-
-        $this->assertTrue($noExceptionWasThrown = true);
+        $this->addToAssertionCount(1);
     }
 
-    public function testItFails()
+    public function testItFails(): void
     {
         $this->expectException(ServiceAccountDiscoveryFailed::class);
 

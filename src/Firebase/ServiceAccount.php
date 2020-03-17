@@ -11,11 +11,21 @@ use Throwable;
 
 class ServiceAccount
 {
+    /** @var string */
     private $projectId;
+
+    /** @var string|null */
     private $sanitizedProjectId;
+
+    /** @var string */
     private $clientId;
+
+    /** @var string */
     private $clientEmail;
+
+    /** @var string */
     private $privateKey;
+
     /** @var string|null */
     private $filePath;
 
@@ -38,7 +48,7 @@ class ServiceAccount
             $this->sanitizedProjectId = \preg_replace('/[^A-Za-z0-9\-]/', '-', $this->projectId);
         }
 
-        return $this->sanitizedProjectId;
+        return $this->sanitizedProjectId ?? $this->projectId;
     }
 
     public function withProjectId(string $value): self

@@ -7,18 +7,21 @@ namespace Kreait\Firebase\Database\Reference;
 use Kreait\Firebase\Exception\InvalidArgumentException;
 use Psr\Http\Message\UriInterface;
 
+/**
+ * @internal
+ */
 class Validator
 {
-    const MAX_DEPTH = 32;
-    const MAX_KEY_SIZE = 768;
-    const INVALID_KEY_CHARS = '.$#[]';
+    public const MAX_DEPTH = 32;
+    public const MAX_KEY_SIZE = 768;
+    public const INVALID_KEY_CHARS = '.$#[]';
 
     /**
      * Checks the reference URI for invalid properties.
      *
      * @throws InvalidArgumentException on
      */
-    public function validateUri(UriInterface $uri)
+    public function validateUri(UriInterface $uri): void
     {
         $path = \trim($uri->getPath(), '/');
 
@@ -30,7 +33,7 @@ class Validator
         }
     }
 
-    private function validateDepth(string $path)
+    private function validateDepth(string $path): void
     {
         $depth = \mb_substr_count($path, '/') + 1;
 
@@ -42,7 +45,7 @@ class Validator
         }
     }
 
-    private function validateKeySize(string $key)
+    private function validateKeySize(string $key): void
     {
         if (($length = \mb_strlen($key, '8bit')) > self::MAX_KEY_SIZE) {
             throw new InvalidArgumentException(\sprintf(
@@ -52,7 +55,7 @@ class Validator
         }
     }
 
-    private function validateChars($key)
+    private function validateChars(string $key): void
     {
         $key = \rawurldecode($key);
 

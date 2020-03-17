@@ -25,10 +25,12 @@ use Psr\Http\Message\RequestInterface;
  */
 final class GuzzleHandler implements Handler
 {
+    /** @var array */
     private static $defaultBody = [
         'returnSecureToken' => true,
     ];
 
+    /** @var array<string, string> */
     private static $defaultHeaders = [
         'Content-Type' => 'application/json; charset=UTF-8',
     ];

@@ -13,14 +13,14 @@ use Kreait\Firebase\Util\JSON;
  */
 class UserInfoTest extends UnitTestCase
 {
-    public function testJsonEncode()
+    public function testJsonEncode(): void
     {
         $info = UserInfo::fromResponseData([
             'rawId' => 'some-uid',
             'providerId' => 'some-provider',
         ]);
 
-        $decoded = \json_decode(JSON::encode($info), false);
+        $decoded = \json_decode(JSON::encode($info), false, 512, \JSON_THROW_ON_ERROR);
 
         $this->assertSame($info->uid, $decoded->uid);
         $this->assertSame($info->providerId, $decoded->providerId);

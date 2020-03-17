@@ -38,13 +38,15 @@ final class AuthApiExceptionConverterTest extends UnitTestCase
     /** @var AuthApiExceptionConverter */
     private $converter;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->converter = new AuthApiExceptionConverter();
     }
 
-    /** @test */
-    public function it_converts_a_request_exception_that_does_not_include_valid_json()
+    /**
+     * @test
+     */
+    public function it_converts_a_request_exception_that_does_not_include_valid_json(): void
     {
         $requestExcpeption = new RequestException(
             'Error without valid json',
@@ -58,8 +60,10 @@ final class AuthApiExceptionConverterTest extends UnitTestCase
         $this->assertSame($responseBody, $convertedError->getMessage());
     }
 
-    /** @test */
-    public function it_converts_a_connect_exception()
+    /**
+     * @test
+     */
+    public function it_converts_a_connect_exception(): void
     {
         $connectException = new ConnectException(
             'curl error xx',
@@ -69,17 +73,22 @@ final class AuthApiExceptionConverterTest extends UnitTestCase
         $this->assertInstanceOf(ApiConnectionFailed::class, $this->converter->convertException($connectException));
     }
 
-    /** @test */
-    public function it_can_handle_unknown_exceptions()
+    /**
+     * @test
+     */
+    public function it_can_handle_unknown_exceptions(): void
     {
-        $this->assertInstanceOf(AuthError::class, $this->converter->convertException($e = new RuntimeException()));
+        $this->assertInstanceOf(AuthError::class, $this->converter->convertException(new RuntimeException()));
     }
 
     /**
      * @test
+     *
+     * @param class-string<\Kreait\Firebase\Exception\AuthException> $expectedClass
+     *
      * @dataProvider requestErrors
      */
-    public function it_converts_request_exceptions_because(string $identifier, string $expectedClass)
+    public function it_converts_request_exceptions_because(string $identifier, string $expectedClass): void
     {
         $requestException = new RequestException(
             'Firebase Error Test',
@@ -101,7 +110,7 @@ final class AuthApiExceptionConverterTest extends UnitTestCase
         $this->assertInstanceOf($expectedClass, $convertedError);
     }
 
-    public function requestErrors()
+    public function requestErrors(): array
     {
         return [
             'credentials mismatch' => ['CREDENTIALS_MISMATCH', CredentialsMismatch::class],

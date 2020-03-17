@@ -11,19 +11,13 @@ use Throwable;
 
 class Template implements \JsonSerializable
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     private $etag = '*';
 
-    /**
-     * @var Parameter[]
-     */
+    /** @var Parameter[] */
     private $parameters = [];
 
-    /**
-     * @var Condition[]
-     */
+    /** @var Condition[] */
     private $conditions = [];
 
     /** @var Version|null */
@@ -94,10 +88,7 @@ class Template implements \JsonSerializable
         return $this->parameters;
     }
 
-    /**
-     * @return Version|null
-     */
-    public function version()
+    public function version(): ?Version
     {
         return $this->version;
     }
@@ -120,7 +111,7 @@ class Template implements \JsonSerializable
         return $template;
     }
 
-    private function assertThatAllConditionalValuesAreValid(Parameter $parameter)
+    private function assertThatAllConditionalValuesAreValid(Parameter $parameter): void
     {
         foreach ($parameter->conditionalValues() as $conditionalValue) {
             if (!\array_key_exists($conditionalValue->conditionName(), $this->conditions)) {
@@ -131,7 +122,7 @@ class Template implements \JsonSerializable
         }
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         $result = [
             'conditions' => \array_values($this->conditions),

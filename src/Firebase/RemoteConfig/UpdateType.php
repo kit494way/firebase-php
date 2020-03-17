@@ -8,20 +8,21 @@ use Kreait\Firebase\Value;
 
 final class UpdateType implements \JsonSerializable, Value
 {
-    const UNSPECIFIED = 'REMOTE_CONFIG_UPDATE_TYPE_UNSPECIFIED';
-    const INCREMENTAL_UPDATE = 'INCREMENTAL_UPDATE';
-    const FORCED_UPDATE = 'FORCED_UPDATE';
-    const ROLLBACK = 'ROLLBACK';
+    public const UNSPECIFIED = 'REMOTE_CONFIG_UPDATE_TYPE_UNSPECIFIED';
+    public const INCREMENTAL_UPDATE = 'INCREMENTAL_UPDATE';
+    public const FORCED_UPDATE = 'FORCED_UPDATE';
+    public const ROLLBACK = 'ROLLBACK';
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $value;
 
     private function __construct()
     {
     }
 
+    /**
+     * @param string|self $value
+     */
     public static function fromValue($value): self
     {
         $new = new self();
@@ -30,12 +31,12 @@ final class UpdateType implements \JsonSerializable, Value
         return $new;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return $this->value;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): string
     {
         return $this->value;
     }

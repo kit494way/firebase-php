@@ -11,9 +11,7 @@ use Throwable;
 
 class Discoverer
 {
-    /**
-     * @var callable[]
-     */
+    /** @var callable[] */
     private $methods;
 
     /**

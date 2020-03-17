@@ -4,43 +4,30 @@ declare(strict_types=1);
 
 namespace Kreait\Firebase\RemoteConfig;
 
+use DateTimeImmutable;
 use Kreait\Firebase\Util\DT;
 
 final class Version
 {
-    /**
-     * @var VersionNumber
-     */
+    /** @var VersionNumber */
     private $versionNumber;
 
-    /**
-     * @var User
-     */
+    /** @var User */
     private $user;
 
-    /**
-     * @var \DateTimeImmutable
-     */
+    /** @var \DateTimeImmutable */
     private $updatedAt;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $description;
 
-    /**
-     * @var UpdateOrigin
-     */
+    /** @var UpdateOrigin */
     private $updateOrigin;
 
-    /**
-     * @var UpdateType
-     */
+    /** @var UpdateType */
     private $updateType;
 
-    /**
-     * @var VersionNumber|null
-     */
+    /** @var VersionNumber|null */
     private $rollbackSource;
 
     private function __construct()
@@ -58,13 +45,8 @@ final class Version
         $new->updatedAt = DT::toUTCDateTimeImmutable($data['updateTime']);
         $new->description = $data['description'] ?? '';
 
-        $new->updateOrigin = ($data['updateOrigin'] ?? null)
-            ? UpdateOrigin::fromValue($data['updateOrigin'])
-            : UpdateOrigin::fromValue(UpdateOrigin::UNSPECIFIED);
-
-        $new->updateType = ($data['updateType'] ?? null)
-            ? UpdateType::fromValue($data['updateType'])
-            : UpdateType::fromValue(UpdateType::UNSPECIFIED);
+        $new->updateOrigin = UpdateOrigin::fromValue($data['updateOrigin'] ?? UpdateOrigin::UNSPECIFIED);
+        $new->updateType = UpdateType::fromValue($data['updateType'] ?? UpdateType::UNSPECIFIED);
 
         $new->rollbackSource = ($data['rollbackSource'] ?? null)
             ? VersionNumber::fromValue($data['rollbackSource'])
@@ -83,7 +65,7 @@ final class Version
         return $this->user;
     }
 
-    public function updatedAt(): \DateTimeImmutable
+    public function updatedAt(): DateTimeImmutable
     {
         return $this->updatedAt;
     }
@@ -103,10 +85,7 @@ final class Version
         return $this->updateType;
     }
 
-    /**
-     * @return VersionNumber|null
-     */
-    public function rollbackSource()
+    public function rollbackSource(): ?VersionNumber
     {
         return $this->rollbackSource;
     }

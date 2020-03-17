@@ -15,12 +15,10 @@ use Throwable;
  */
 class CustomTokenViaGoogleIamTest extends IntegrationTestCase
 {
-    /**
-     * @var CustomTokenViaGoogleIam
-     */
+    /** @var CustomTokenViaGoogleIam */
     private $generator;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         if (!self::$serviceAccount) {
             $this->markTestSkipped('The integration tests require credentials');
@@ -32,13 +30,13 @@ class CustomTokenViaGoogleIamTest extends IntegrationTestCase
         );
     }
 
-    public function testCreateCustomToken()
+    public function testCreateCustomToken(): void
     {
         $this->generator->createCustomToken('some-uid', ['a-claim' => 'a-value']);
         $this->addToAssertionCount(1);
     }
 
-    public function testCreateCustomTokenWithAnInvalidClientEmail()
+    public function testCreateCustomTokenWithAnInvalidClientEmail(): void
     {
         $generator = new CustomTokenViaGoogleIam('user@domain.tld', self::$factory->createApiClient());
 

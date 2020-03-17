@@ -14,7 +14,7 @@ final class TransactionFailed extends RuntimeException implements FirebaseExcept
     /** @var Reference */
     private $reference;
 
-    public function __construct(Reference $query, $message = '', $code = 0, Throwable $previous = null)
+    public function __construct(Reference $query, string $message = '', int $code = 0, Throwable $previous = null)
     {
         if (\trim($message) === '') {
             $queryPath = $query->getPath();

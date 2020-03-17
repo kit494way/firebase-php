@@ -13,27 +13,22 @@ use Kreait\Firebase\Tests\UnitTestCase;
  */
 class CustomTokenTest extends UnitTestCase
 {
-    /**
-     * @var Psr7\Request
-     */
+    /** @var Psr7\Request */
     private $request;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->request = new Psr7\Request('GET', 'http://domain.tld');
     }
 
     /**
-     * @param string $uid
-     * @param array $claims
+     * @param array|null $claims
      *
      * @dataProvider customTokenProvider
      */
-    public function testAuthenticateRequest($uid, $claims, array $expectedQueryParams)
+    public function testAuthenticateRequest(string $uid, $claims, array $expectedQueryParams): void
     {
-        $auth = new CustomToken($uid, $claims);
-
-        $authenticated = $auth->authenticateRequest($this->request);
+        $authenticated = (new CustomToken($uid, $claims))->authenticateRequest($this->request);
 
         $this->assertNotSame($this->request, $authenticated);
 
@@ -42,10 +37,11 @@ class CustomTokenTest extends UnitTestCase
         $this->assertArrayHasKey('auth_variable_override', $queryParams);
         $this->assertJson($queryParams['auth_variable_override']);
 
-        $this->assertEquals($expectedQueryParams, \json_decode($queryParams['auth_variable_override'], true));
+        $this->assertEquals($expectedQueryParams,
+            \json_decode($queryParams['auth_variable_override'], true, 512, \JSON_THROW_ON_ERROR));
     }
 
-    public function customTokenProvider()
+    public function customTokenProvider(): array
     {
         $uid = 'uid';
 

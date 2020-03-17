@@ -8,25 +8,23 @@ use Kreait\Firebase\Exception\InvalidArgumentException;
 
 final class MessageTarget
 {
-    const CONDITION = 'condition';
-    const TOKEN = 'token';
-    const TOPIC = 'topic';
+    public const CONDITION = 'condition';
+    public const TOKEN = 'token';
+    public const TOPIC = 'topic';
 
-    /** @internal */
-    const UNKNOWN = 'unknown';
+    /**
+     * @internal
+     */
+    public const UNKNOWN = 'unknown';
 
-    const TYPES = [
+    public const TYPES = [
         self::CONDITION, self::TOKEN, self::TOPIC, self::UNKNOWN,
     ];
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $type;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $value;
 
     private function __construct()

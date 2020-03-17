@@ -59,6 +59,9 @@ final class AppInstance implements JsonSerializable
         return $this->topicSubscriptions;
     }
 
+    /**
+     * @param Topic|string|int $topic
+     */
     public function isSubscribedToTopic($topic): bool
     {
         $topic = $topic instanceof Topic ? $topic : Topic::fromValue((string) $topic);
@@ -75,7 +78,7 @@ final class AppInstance implements JsonSerializable
         return $this->rawData;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return $this->rawData;
     }

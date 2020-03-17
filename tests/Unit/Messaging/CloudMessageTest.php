@@ -18,13 +18,13 @@ use PHPUnit\Framework\TestCase;
  */
 class CloudMessageTest extends TestCase
 {
-    public function testInvalidTargetCausesError()
+    public function testInvalidTargetCausesError(): void
     {
         $this->expectException(InvalidArgumentException::class);
         CloudMessage::withTarget('invalid_target', 'foo');
     }
 
-    public function testWithChangedTarget()
+    public function testWithChangedTarget(): void
     {
         $original = CloudMessage::withTarget(MessageTarget::TOKEN, 'bar')
             ->withData(['foo' => 'bar'])
@@ -32,25 +32,25 @@ class CloudMessageTest extends TestCase
 
         $changed = $original->withChangedTarget(MessageTarget::TOKEN, 'baz');
 
-        $encodedOriginal = \json_decode(JSON::encode($original), true);
+        $encodedOriginal = \json_decode(JSON::encode($original), true, 512, \JSON_THROW_ON_ERROR);
         $encodedOriginal[MessageTarget::TOKEN] = 'baz';
 
-        $encodedChanged = \json_decode(JSON::encode($changed), true);
+        $encodedChanged = \json_decode(JSON::encode($changed), true, 512, \JSON_THROW_ON_ERROR);
 
         $this->assertSame($encodedOriginal, $encodedChanged);
     }
 
-    public function testAnEmptyMessageHasNotTarget()
+    public function testAnEmptyMessageHasNotTarget(): void
     {
         $this->assertFalse(CloudMessage::new()->hasTarget());
     }
 
-    public function testWithChangedFcmOptions()
+    public function testWithChangedFcmOptions(): void
     {
         $options = FcmOptions::create()->withAnalyticsLabel($label = 'my-label');
         $message = CloudMessage::new()->withFcmOptions($options);
 
-        $messageData = \json_decode(JSON::encode($message), true);
+        $messageData = \json_decode(JSON::encode($message), true, 512, \JSON_THROW_ON_ERROR);
 
         $this->assertArrayHasKey('fcm_options', $messageData);
         $this->assertArrayHasKey('analytics_label', $messageData['fcm_options']);
@@ -60,13 +60,13 @@ class CloudMessageTest extends TestCase
     /**
      * @dataProvider multipleTargets
      */
-    public function testAMessageCanOnlyHaveOneTarget($data)
+    public function testAMessageCanOnlyHaveOneTarget(array $data): void
     {
         $this->expectException(InvalidArgument::class);
         CloudMessage::fromArray($data);
     }
 
-    public function multipleTargets()
+    public function multipleTargets(): array
     {
         return [
             'condition and token' => [[

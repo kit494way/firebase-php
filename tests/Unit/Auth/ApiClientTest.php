@@ -10,6 +10,7 @@ use Kreait\Firebase\Auth\ApiClient;
 use Kreait\Firebase\Exception\AuthException;
 use Kreait\Firebase\Request\CreateUser;
 use Kreait\Firebase\Tests\UnitTestCase;
+use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Http\Message\RequestInterface;
 
 /**
@@ -17,18 +18,19 @@ use Psr\Http\Message\RequestInterface;
  */
 class ApiClientTest extends UnitTestCase
 {
+    /** @var ClientInterface|MockObject */
     private $http;
 
     /** @var ApiClient */
     private $client;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->http = $this->createMock(ClientInterface::class);
         $this->client = new ApiClient($this->http);
     }
 
-    public function testCatchRequestException()
+    public function testCatchRequestException(): void
     {
         $request = $this->prophesize(RequestInterface::class);
 
@@ -41,7 +43,7 @@ class ApiClientTest extends UnitTestCase
         $this->client->createUser(CreateUser::new());
     }
 
-    public function testCatchThrowable()
+    public function testCatchThrowable(): void
     {
         $this->http
             ->expects($this->once())

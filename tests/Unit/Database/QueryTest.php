@@ -8,11 +8,10 @@ use GuzzleHttp\Psr7\Uri;
 use Kreait\Firebase\Database\ApiClient;
 use Kreait\Firebase\Database\Query;
 use Kreait\Firebase\Database\Reference;
-use Kreait\Firebase\Database\Snapshot;
 use Kreait\Firebase\Exception\Database\DatabaseError;
 use Kreait\Firebase\Exception\Database\UnsupportedQuery;
 use Kreait\Firebase\Tests\UnitTestCase;
-use Psr\Http\Message\UriInterface;
+use PHPUnit\Framework\MockObject\MockObject;
 use Throwable;
 
 /**
@@ -20,84 +19,60 @@ use Throwable;
  */
 class QueryTest extends UnitTestCase
 {
-    /**
-     * @var Uri
-     */
+    /** @var Uri */
     protected $uri;
 
-    /**
-     * @var Reference|\PHPUnit_Framework_MockObject_MockObject
-     */
+    /** @var Reference|MockObject */
     protected $reference;
 
-    /**
-     * @var ApiClient|\PHPUnit_Framework_MockObject_MockObject
-     */
+    /** @var ApiClient|MockObject */
     protected $apiClient;
 
-    /**
-     * @var Query
-     */
+    /** @var Query */
     protected $query;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->uri = new Uri('http://domain.tld/some/path');
 
         $reference = $this->createMock(Reference::class);
-        $reference->expects($this->any())->method('getURI')->willReturn($this->uri);
+        $reference->method('getURI')->willReturn($this->uri);
 
         $this->reference = $reference;
 
-        $apiClient = $this->createMock(ApiClient::class);
-        $this->apiClient = $apiClient;
+        $this->apiClient = $this->createMock(ApiClient::class);
 
         $this->query = new Query($this->reference, $this->apiClient);
     }
 
-    public function testGetReference()
+    public function testGetReference(): void
     {
         $this->assertSame($this->reference, $this->query->getReference());
     }
 
-    public function testGetSnapshot()
+    public function testGetSnapshot(): void
     {
-        $this->apiClient->expects($this->any())->method('get')->with($this->anything())->willReturn('value');
+        $this->apiClient->method('get')->with($this->anything())->willReturn('value');
 
-        $snapshot = $this->query->orderByKey()->equalTo(2)->getSnapshot();
-
-        $this->assertInstanceOf(Snapshot::class, $snapshot);
+        $this->query->orderByKey()->equalTo(2)->getSnapshot();
+        $this->addToAssertionCount(1);
     }
 
-    public function testGetValue()
+    public function testGetValue(): void
     {
-        $this->apiClient->expects($this->any())->method('get')->with($this->anything())->willReturn('value');
+        $this->apiClient->method('get')->with($this->anything())->willReturn('value');
 
         $this->assertSame('value', $this->query->getValue());
     }
 
-    public function testGetUri()
+    public function testGetUri(): void
     {
         $uri = $this->query->getUri();
 
-        $this->assertInstanceOf(UriInterface::class, $uri);
         $this->assertSame((string) $uri, (string) $this->query);
     }
 
-    public function testModifiersReturnQueries()
-    {
-        $this->assertInstanceOf(Query::class, $this->query->equalTo('x'));
-        $this->assertInstanceOf(Query::class, $this->query->endAt('x'));
-        $this->assertInstanceOf(Query::class, $this->query->limitToFirst(1));
-        $this->assertInstanceOf(Query::class, $this->query->limitToLast(1));
-        $this->assertInstanceOf(Query::class, $this->query->orderByChild('child'));
-        $this->assertInstanceOf(Query::class, $this->query->orderByKey());
-        $this->assertInstanceOf(Query::class, $this->query->orderByValue());
-        $this->assertInstanceOf(Query::class, $this->query->shallow());
-        $this->assertInstanceOf(Query::class, $this->query->startAt('x'));
-    }
-
-    public function testOnlyOneSorterIsAllowed()
+    public function testOnlyOneSorterIsAllowed(): void
     {
         try {
             $this->query->orderByKey()->orderByValue();
@@ -106,7 +81,7 @@ class QueryTest extends UnitTestCase
         }
     }
 
-    public function testWrapsApiExceptions()
+    public function testWrapsApiExceptions(): void
     {
         $exception = new DatabaseError();
 
@@ -119,7 +94,7 @@ class QueryTest extends UnitTestCase
         $this->query->getSnapshot();
     }
 
-    public function testIndexNotDefined()
+    public function testIndexNotDefined(): void
     {
         $this->apiClient
             ->method('get')->with($this->anything())

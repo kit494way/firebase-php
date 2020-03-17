@@ -8,19 +8,20 @@ use Kreait\Firebase\Value;
 
 final class UpdateOrigin implements \JsonSerializable, Value
 {
-    const UNSPECIFIED = 'REMOTE_CONFIG_UPDATE_ORIGIN_UNSPECIFIED';
-    const CONSOLE = 'CONSOLE';
-    const REST_API = 'REST_API';
+    public const UNSPECIFIED = 'REMOTE_CONFIG_UPDATE_ORIGIN_UNSPECIFIED';
+    public const CONSOLE = 'CONSOLE';
+    public const REST_API = 'REST_API';
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $value;
 
     private function __construct()
     {
     }
 
+    /**
+     * @param self|string $value
+     */
     public static function fromValue($value): self
     {
         $new = new self();
@@ -29,12 +30,12 @@ final class UpdateOrigin implements \JsonSerializable, Value
         return $new;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return $this->value;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): string
     {
         return $this->value;
     }

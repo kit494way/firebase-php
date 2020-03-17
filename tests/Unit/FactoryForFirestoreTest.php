@@ -14,12 +14,12 @@ use Throwable;
  */
 final class FactoryForFirestoreTest extends UnitTestCase
 {
-    protected function setUp()
+    protected function setUp(): void
     {
         self::onlyIfFirestoreIsAvailable();
     }
 
-    public function testCreateFirestoreFromServiceAccountWithFilePath()
+    public function testCreateFirestoreFromServiceAccountWithFilePath(): void
     {
         (new Factory())
             ->withServiceAccount(self::$fixturesDir.'/ServiceAccount/valid.json')
@@ -28,9 +28,10 @@ final class FactoryForFirestoreTest extends UnitTestCase
         $this->addToAssertionCount(1);
     }
 
-    public function testCreateFirestoreFromServiceAccountAsArray()
+    public function testCreateFirestoreFromServiceAccountAsArray(): void
     {
-        $serviceAccount = \json_decode((string) \file_get_contents(self::$fixturesDir.'/ServiceAccount/valid.json'), true);
+        $serviceAccount = \json_decode((string) \file_get_contents(self::$fixturesDir.'/ServiceAccount/valid.json'),
+            true, 512, \JSON_THROW_ON_ERROR);
 
         (new Factory())
             ->withServiceAccount($serviceAccount)
@@ -39,7 +40,7 @@ final class FactoryForFirestoreTest extends UnitTestCase
         $this->addToAssertionCount(1);
     }
 
-    public function testCreateFirestoreWithApplicationDefaultCredentials()
+    public function testCreateFirestoreWithApplicationDefaultCredentials(): void
     {
         \putenv('GOOGLE_APPLICATION_CREDENTIALS='.self::$fixturesDir.'/ServiceAccount/valid.json');
 

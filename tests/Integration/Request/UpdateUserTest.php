@@ -14,17 +14,15 @@ use Kreait\Firebase\Tests\IntegrationTestCase;
  */
 class UpdateUserTest extends IntegrationTestCase
 {
-    /**
-     * @var Auth
-     */
+    /** @var Auth */
     private $auth;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->auth = self::$factory->createAuth();
     }
 
-    public function testRemovePhotoUrl()
+    public function testRemovePhotoUrl(): void
     {
         $photoUrl = 'http://example.com/a_photo.jpg';
 
@@ -38,7 +36,7 @@ class UpdateUserTest extends IntegrationTestCase
         $this->auth->deleteUser($user->uid);
     }
 
-    public function testRemoveDisplayName()
+    public function testRemoveDisplayName(): void
     {
         $displayName = 'A display name';
 
@@ -52,64 +50,64 @@ class UpdateUserTest extends IntegrationTestCase
         $this->auth->deleteUser($user->uid);
     }
 
-    public function testMarkNonExistingEmailAsVerified()
+    public function testMarkNonExistingEmailAsVerified(): void
     {
         $user = $this->auth->createUser(
             CreateUser::new()
                 ->withUid($uid = \bin2hex(\random_bytes(5)))
         );
 
-        $this->assertTrue($user->emailVerified !== true);
+        $this->assertNotTrue($user->emailVerified);
         $this->assertNull($user->email);
 
         $updatedUser = $this->auth->updateUser($uid, UpdateUser::new()->markEmailAsVerified());
 
         $this->assertSame($user->uid, $updatedUser->uid);
         $this->assertNull($updatedUser->email);
-        $this->assertSame(true, $updatedUser->emailVerified);
+        $this->assertTrue($updatedUser->emailVerified);
 
         $this->auth->deleteUser($updatedUser->uid);
     }
 
-    public function testMarkExistingUnverifiedEmailAsVerified()
+    public function testMarkExistingUnverifiedEmailAsVerified(): void
     {
         $user = $this->auth->createUser(
             CreateUser::new()
                 ->withUid($uid = \bin2hex(\random_bytes(5)))
-                ->withUnverifiedEmail($email = $uid.'@example.org')
+                ->withUnverifiedEmail($uid.'@example.org')
         );
 
-        $this->assertSame(false, $user->emailVerified);
+        $this->assertFalse($user->emailVerified);
 
         $updatedUser = $this->auth->updateUser($uid, UpdateUser::new()->markEmailAsVerified());
 
         $this->assertSame($user->uid, $updatedUser->uid);
         $this->assertSame($user->email, $updatedUser->email);
-        $this->assertSame(true, $updatedUser->emailVerified);
+        $this->assertTrue($updatedUser->emailVerified);
 
         $this->auth->deleteUser($updatedUser->uid);
     }
 
-    public function testMarkExistingVerifiedEmailAsUnverified()
+    public function testMarkExistingVerifiedEmailAsUnverified(): void
     {
         $user = $this->auth->createUser(
             CreateUser::new()
                 ->withUid($uid = \bin2hex(\random_bytes(5)))
-                ->withVerifiedEmail($email = $uid.'@example.org')
+                ->withVerifiedEmail($uid.'@example.org')
         );
 
-        $this->assertSame(true, $user->emailVerified);
+        $this->assertTrue($user->emailVerified);
 
         $updatedUser = $this->auth->updateUser($uid, UpdateUser::new()->markEmailAsUnverified());
 
         $this->assertSame($user->uid, $updatedUser->uid);
         $this->assertSame($user->email, $updatedUser->email);
-        $this->assertSame(false, $updatedUser->emailVerified);
+        $this->assertFalse($updatedUser->emailVerified);
 
         $this->auth->deleteUser($updatedUser->uid);
     }
 
-    public function testUpdateUserWithCustomAttributes()
+    public function testUpdateUserWithCustomAttributes(): void
     {
         $request = CreateUser::new()
             ->withUid($uid = \bin2hex(\random_bytes(5)));
@@ -136,12 +134,12 @@ class UpdateUserTest extends IntegrationTestCase
         $this->auth->deleteUser($uid);
     }
 
-    public function testRemovePhoneNumber()
+    public function testRemovePhoneNumber(): void
     {
         $user = $this->auth->createUser(
             CreateUser::new()
                 ->withUid($uid = \bin2hex(\random_bytes(5)))
-                ->withVerifiedEmail($email = $uid.'@example.org')
+                ->withVerifiedEmail($uid.'@example.org')
                 ->withPhoneNumber($phoneNumber = '+1234567'.\random_int(1000, 9999))
         );
 
@@ -160,7 +158,7 @@ class UpdateUserTest extends IntegrationTestCase
     /**
      * @see https://github.com/kreait/firebase-php/issues/196
      */
-    public function testReEnable()
+    public function testReEnable(): void
     {
         $user = $this->auth->createUser([
             'disabled' => true,

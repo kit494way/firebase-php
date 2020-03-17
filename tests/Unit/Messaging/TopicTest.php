@@ -16,7 +16,7 @@ class TopicTest extends TestCase
     /**
      * @dataProvider valueProvider
      */
-    public function testFromValue($expected, $value)
+    public function testFromValue(string $expected, string $value): void
     {
         $this->assertSame($expected, Topic::fromValue($value)->value());
     }
@@ -24,13 +24,13 @@ class TopicTest extends TestCase
     /**
      * @dataProvider invalidValueProvider
      */
-    public function testFromInvalidValue($value)
+    public function testFromInvalidValue(string $value): void
     {
         $this->expectException(InvalidArgument::class);
         Topic::fromValue($value);
     }
 
-    public function valueProvider()
+    public function valueProvider(): array
     {
         return [
             ['foo', 'foo'],
@@ -40,7 +40,7 @@ class TopicTest extends TestCase
         ];
     }
 
-    public function invalidValueProvider()
+    public function invalidValueProvider(): array
     {
         return [
             ['$'],

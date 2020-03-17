@@ -12,9 +12,7 @@ use libphonenumber\PhoneNumberUtil;
 
 class PhoneNumber implements \JsonSerializable, Value
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     private $value;
 
     /**
@@ -33,12 +31,12 @@ class PhoneNumber implements \JsonSerializable, Value
         $this->value = $util->format($parsed, PhoneNumberFormat::E164);
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return $this->value;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): string
     {
         return $this->value;
     }

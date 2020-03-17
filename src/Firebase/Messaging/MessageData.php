@@ -8,9 +8,7 @@ use Kreait\Firebase\Exception\InvalidArgumentException;
 
 final class MessageData implements \JsonSerializable
 {
-    /**
-     * @var array
-     */
+    /** @var array */
     private $data = [];
 
     private function __construct()
@@ -32,11 +30,14 @@ final class MessageData implements \JsonSerializable
         return $messageData;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return $this->data;
     }
 
+    /**
+     * @param mixed $value
+     */
     private static function isStringable($value): bool
     {
         return \is_null($value) || \is_scalar($value) || (\is_object($value) && \method_exists($value, '__toString'));

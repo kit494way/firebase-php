@@ -15,14 +15,14 @@ class AndroidConfigTest extends UnitTestCase
     /**
      * @dataProvider validDataProvider
      */
-    public function testCreateFromArray(array $data)
+    public function testCreateFromArray(array $data): void
     {
         $config = AndroidConfig::fromArray($data);
 
         $this->assertEquals($data, $config->jsonSerialize());
     }
 
-    public function validDataProvider()
+    public function validDataProvider(): array
     {
         return [
             'full_config' => [[

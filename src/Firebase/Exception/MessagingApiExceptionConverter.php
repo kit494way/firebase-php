@@ -33,10 +33,7 @@ class MessagingApiExceptionConverter
         $this->responseParser = new ErrorResponseParser();
     }
 
-    /**
-     * @return MessagingException
-     */
-    public function convertException(Throwable $exception): FirebaseException
+    public function convertException(Throwable $exception): MessagingException
     {
         if ($exception instanceof RequestException) {
             return $this->convertGuzzleRequestException($exception);

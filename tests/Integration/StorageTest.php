@@ -13,29 +13,27 @@ use Kreait\Firebase\Tests\IntegrationTestCase;
  */
 class StorageTest extends IntegrationTestCase
 {
-    /**
-     * @var Storage
-     */
+    /** @var Storage */
     private $storage;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->storage = self::$factory->createStorage();
     }
 
-    public function testGetStorageClient()
+    public function testGetStorageClient(): void
     {
         $this->storage->getStorageClient();
         $this->addToAssertionCount(1);
     }
 
-    public function testGetBucket()
+    public function testGetBucket(): void
     {
         $this->assertInstanceOf(Bucket::class, $first = $this->storage->getBucket());
         $this->assertSame($first, $this->storage->getBucket());
     }
 
-    public function testGetCustomBucket()
+    public function testGetCustomBucket(): void
     {
         $this->assertInstanceOf(Bucket::class, $first = $this->storage->getBucket('custom'));
         $this->assertSame($first, $this->storage->getBucket('custom'));

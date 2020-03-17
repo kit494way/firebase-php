@@ -13,17 +13,18 @@ use Kreait\Firebase\Tests\UnitTestCase;
  */
 class DiscovererTest extends UnitTestCase
 {
-    public function testItHasDefaultMethods()
+    public function testItHasDefaultMethods(): void
     {
         $discoverer = new Discoverer();
-        $rc = new \ReflectionClass($discoverer);
-        $property = $rc->getProperty('methods');
+        $property = (new \ReflectionClass($discoverer))->getProperty('methods');
         $property->setAccessible(true);
 
-        $this->assertGreaterThan(0, \count($property->getValue($discoverer)));
+        $methodCount = \is_countable($property->getValue($discoverer)) ? \count($property->getValue($discoverer)) : 0;
+
+        $this->assertGreaterThan(0, $methodCount);
     }
 
-    public function testItDiscoversAServiceAccount()
+    public function testItDiscoversAServiceAccount(): void
     {
         $serviceAccount = $this->createServiceAccountMock();
 
@@ -35,11 +36,11 @@ class DiscovererTest extends UnitTestCase
         $this->assertSame($serviceAccount, $discoverer->discover());
     }
 
-    public function testItFailsWithADistinctException()
+    public function testItFailsWithADistinctException(): void
     {
         $exception = new \Exception('Not found');
 
-        $method = static function () use ($exception) {
+        $method = static function () use ($exception): void {
             throw $exception;
         };
 

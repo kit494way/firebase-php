@@ -8,9 +8,7 @@ use JsonSerializable;
 
 class RuleSet implements JsonSerializable
 {
-    /**
-     * @var array
-     */
+    /** @var array */
     private $rules;
 
     private function __construct(array $rules)
@@ -85,7 +83,7 @@ class RuleSet implements JsonSerializable
         return $this->rules;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return $this->rules;
     }

@@ -9,7 +9,9 @@ use GuzzleHttp\ClientInterface;
 use InvalidArgumentException;
 use Kreait\Firebase\Exception\Auth\AuthError;
 use Kreait\Firebase\Exception\AuthApiExceptionConverter;
+use Kreait\Firebase\Exception\AuthException;
 use Kreait\Firebase\Util\JSON;
+use Kreait\Firebase\Value\Uid;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Token;
@@ -29,7 +31,12 @@ class CustomTokenViaGoogleIam implements Generator
         $this->client = $client;
     }
 
-    public function createCustomToken($uid, array $claims = [], \DateTimeInterface $expiresAt = null): Token
+    /**
+     * @param Uid|string $uid
+     *
+     * @throws AuthException
+     */
+    public function createCustomToken($uid, array $claims = [], ?\DateTimeInterface $expiresAt = null): Token
     {
         $now = \time();
         $expiration = $expiresAt ? $expiresAt->getTimestamp() : $now + (60 * 60);

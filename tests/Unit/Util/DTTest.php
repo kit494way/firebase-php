@@ -16,9 +16,12 @@ use stdClass;
 class DTTest extends TestCase
 {
     /**
+     * @param string $expected
+     * @param mixed $value
+     *
      * @dataProvider validFixedValues
      */
-    public function testConvertWithFixedValues($expected, $value)
+    public function testConvertWithFixedValues($expected, $value): void
     {
         $dt = DT::toUTCDateTimeImmutable($value);
 
@@ -27,27 +30,30 @@ class DTTest extends TestCase
     }
 
     /**
+     * @param mixed $value
+     *
      * @dataProvider validVariableValues
      */
-    public function testConvertWithVariableValues($value)
+    public function testConvertWithVariableValues($value): void
     {
         $dt = DT::toUTCDateTimeImmutable($value);
 
-        $this->assertInstanceOf(DateTimeImmutable::class, $dt);
         $this->assertEquals('UTC', $dt->getTimezone()->getName());
     }
 
     /**
+     * @param mixed $value
+     *
      * @dataProvider invalidValues
      */
-    public function testConvertInvalid($value)
+    public function testConvertInvalid($value): void
     {
         $this->expectException(\InvalidArgumentException::class);
 
         DT::toUTCDateTimeImmutable($value);
     }
 
-    public function validFixedValues()
+    public function validFixedValues(): array
     {
         return [
             'seconds' => ['1234567890.000000', 1234567890],
@@ -55,11 +61,11 @@ class DTTest extends TestCase
             'milliseconds_2' => ['1234567890.123000', 1234567890123],
             'date_string' => ['345254400.000000', '10.12.1980'],
             'timezoned_1' => ['345328496.789012', '10.12.1980 12:34:56.789012 -08:00'],
-            'timezoned_2' => ['345328496.789012', new \DateTimeImmutable('10.12.1980 12:34:56.789012', new DateTimeZone('America/Los_Angeles'))],
+            'timezoned_2' => ['345328496.789012', new DateTimeImmutable('10.12.1980 12:34:56.789012', new DateTimeZone('America/Los_Angeles'))],
         ];
     }
 
-    public function validVariableValues()
+    public function validVariableValues(): array
     {
         return [
             'null' => [null],
@@ -69,12 +75,12 @@ class DTTest extends TestCase
             'false' => [false],
             'microtime' => [\microtime()],
             'time' => [\time()],
-            'now in LA' => [new \DateTimeImmutable('now', new DateTimeZone('America/Los_Angeles'))],
+            'now in LA' => [new DateTimeImmutable('now', new DateTimeZone('America/Los_Angeles'))],
             'now in Bangkok' => [new DateTimeImmutable('now', new DateTimeZone('Asia/Bangkok'))],
         ];
     }
 
-    public function invalidValues()
+    public function invalidValues(): array
     {
         return [
             ['foo'],

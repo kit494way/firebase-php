@@ -11,6 +11,7 @@ use Kreait\Firebase\Database\Transaction;
 use Kreait\Firebase\Exception\Database\DatabaseError;
 use Kreait\Firebase\Exception\Database\ReferenceHasNotBeenSnapshotted;
 use Kreait\Firebase\Exception\Database\TransactionFailed;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Throwable;
 
@@ -19,19 +20,20 @@ use Throwable;
  */
 class TransactionTest extends TestCase
 {
+    /** @var ApiClient|MockObject */
     private $apiClient;
 
     /** @var Transaction */
     private $transaction;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->apiClient = $this->createMock(ApiClient::class);
 
         $this->transaction = new Transaction($this->apiClient);
     }
 
-    public function testAReferenceCanNotBeChangedIfItHasNotBeenSnapshotted()
+    public function testAReferenceCanNotBeChangedIfItHasNotBeenSnapshotted(): void
     {
         $reference = $this->createMock(Reference::class);
 
@@ -44,7 +46,7 @@ class TransactionTest extends TestCase
         }
     }
 
-    public function testATransactionCanFail()
+    public function testATransactionCanFail(): void
     {
         $reference = $this->createMock(Reference::class);
         $reference->method('getUri')->willReturn($uri = new Uri('https://domain.tld'));

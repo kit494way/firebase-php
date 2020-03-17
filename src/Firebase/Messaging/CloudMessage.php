@@ -7,7 +7,7 @@ namespace Kreait\Firebase\Messaging;
 use Kreait\Firebase\Exception\InvalidArgumentException;
 use Kreait\Firebase\Exception\Messaging\InvalidArgument;
 
-class CloudMessage implements Message
+final class CloudMessage implements Message
 {
     /** @var MessageTarget|null */
     private $target;
@@ -35,31 +35,21 @@ class CloudMessage implements Message
     }
 
     /**
-     * @param string $type One of "condition", "token", "topic"
-     *
      * @throws InvalidArgumentException if the target type or value is invalid
-     *
-     * @return static
      */
-    public static function withTarget(string $type, string $value)
+    public static function withTarget(string $type, string $value): self
     {
         return self::new()->withChangedTarget($type, $value);
     }
 
-    /**
-     * @return static
-     */
-    public static function new()
+    public static function new(): self
     {
-        return new static();
+        return new self();
     }
 
-    /**
-     * @return static
-     */
-    public static function fromArray(array $data)
+    public static function fromArray(array $data): self
     {
-        $new = new static();
+        $new = new self();
 
         if (\count(\array_intersect(\array_keys($data), MessageTarget::TYPES)) > 1) {
             throw new InvalidArgument(
@@ -104,13 +94,9 @@ class CloudMessage implements Message
     }
 
     /**
-     * @param string $type One of "condition", "token", "topic"
-     *
      * @throws InvalidArgumentException if the target type or value is invalid
-     *
-     * @return static
      */
-    public function withChangedTarget(string $type, string $value)
+    public function withChangedTarget(string $type, string $value): self
     {
         $new = clone $this;
         $new->target = MessageTarget::with($type, $value);
@@ -122,10 +108,8 @@ class CloudMessage implements Message
      * @param MessageData|array $data
      *
      * @throws InvalidArgumentException
-     *
-     * @return static
      */
-    public function withData($data)
+    public function withData($data): self
     {
         $new = clone $this;
         $new->data = $data instanceof MessageData ? $data : MessageData::fromArray($data);
@@ -137,10 +121,8 @@ class CloudMessage implements Message
      * @param Notification|array $notification
      *
      * @throws InvalidArgumentException
-     *
-     * @return static
      */
-    public function withNotification($notification)
+    public function withNotification($notification): self
     {
         $new = clone $this;
         $new->notification = $notification instanceof Notification ? $notification : Notification::fromArray($notification);
@@ -152,10 +134,8 @@ class CloudMessage implements Message
      * @param AndroidConfig|array $config
      *
      * @throws InvalidArgumentException
-     *
-     * @return static
      */
-    public function withAndroidConfig($config)
+    public function withAndroidConfig($config): self
     {
         $new = clone $this;
         $new->androidConfig = $config instanceof AndroidConfig ? $config : AndroidConfig::fromArray($config);
@@ -167,10 +147,8 @@ class CloudMessage implements Message
      * @param ApnsConfig|array $config
      *
      * @throws InvalidArgumentException
-     *
-     * @return static
      */
-    public function withApnsConfig($config)
+    public function withApnsConfig($config): self
     {
         $new = clone $this;
         $new->apnsConfig = $config instanceof ApnsConfig ? $config : ApnsConfig::fromArray($config);
@@ -180,10 +158,8 @@ class CloudMessage implements Message
 
     /**
      * @param WebPushConfig|array $config
-     *
-     * @return static
      */
-    public function withWebPushConfig($config)
+    public function withWebPushConfig($config): self
     {
         $new = clone $this;
         $new->webPushConfig = $config instanceof WebPushConfig ? $config : WebPushConfig::fromArray($config);
@@ -193,10 +169,8 @@ class CloudMessage implements Message
 
     /**
      * @param FcmOptions|array $options
-     *
-     * @return static
      */
-    public function withFcmOptions($options)
+    public function withFcmOptions($options): self
     {
         $new = clone $this;
         $new->fcmOptions = $options instanceof FcmOptions ? $options : FcmOptions::fromArray($options);
@@ -209,7 +183,7 @@ class CloudMessage implements Message
         return $this->target ? true : false;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         $data = [
             'data' => $this->data,

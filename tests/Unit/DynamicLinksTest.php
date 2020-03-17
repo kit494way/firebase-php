@@ -42,7 +42,7 @@ final class DynamicLinksTest extends TestCase
     /** @var DynamicLinks */
     private $service;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->httpHandler = new MockHandler();
         $httpClient = new Client(['handler' => HandlerStack::create($this->httpHandler)]);
@@ -50,8 +50,10 @@ final class DynamicLinksTest extends TestCase
         $this->service = DynamicLinks::withApiClientAndDefaultDomain($httpClient, $this->dynamicLinksDomain);
     }
 
-    /** @test */
-    public function it_creates_a_dynamic_link()
+    /**
+     * @test
+     */
+    public function it_creates_a_dynamic_link(): void
     {
         $this->httpHandler->append(
             new Response(200, [], JSON::encode($responseData = [
@@ -76,11 +78,13 @@ final class DynamicLinksTest extends TestCase
         $this->assertSame($previewLink, (string) $dynamicLink->previewUri());
         $this->assertSame($this->dynamicLinksDomain, $dynamicLink->domain());
         $this->assertSame($suffix, $dynamicLink->suffix());
-        $this->assertEquals($responseData, \json_decode(JSON::encode($dynamicLink), true));
+        $this->assertEquals($responseData, \json_decode(JSON::encode($dynamicLink), true, 512, \JSON_THROW_ON_ERROR));
     }
 
-    /** @test */
-    public function it_creates_a_dynamic_link_from_an_array_of_parameters()
+    /**
+     * @test
+     */
+    public function it_creates_a_dynamic_link_from_an_array_of_parameters(): void
     {
         $this->httpHandler->append(
             new Response(200, [], JSON::encode($responseData = [
@@ -98,18 +102,22 @@ final class DynamicLinksTest extends TestCase
         $this->assertSame($previewLink, (string) $dynamicLink->previewUri());
         $this->assertSame($this->dynamicLinksDomain, $dynamicLink->domain());
         $this->assertSame($suffix, $dynamicLink->suffix());
-        $this->assertEquals($responseData, \json_decode(JSON::encode($dynamicLink), true));
+        $this->assertEquals($responseData, \json_decode(JSON::encode($dynamicLink), true, 512, \JSON_THROW_ON_ERROR));
     }
 
-    /** @test */
-    public function it_rejects_an_invalid_creation_parameter()
+    /**
+     * @test
+     */
+    public function it_rejects_an_invalid_creation_parameter(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->service->createShortLink(true);
     }
 
-    /** @test */
-    public function creation_fails_if_no_connection_is_available()
+    /**
+     * @test
+     */
+    public function creation_fails_if_no_connection_is_available(): void
     {
         $connectionError = ConnectException::create($this->createMock(RequestInterface::class));
         $this->httpHandler->append($connectionError);
@@ -118,8 +126,10 @@ final class DynamicLinksTest extends TestCase
         $this->service->createDynamicLink('https://domain.tld/irrelevant');
     }
 
-    /** @test */
-    public function creation_fails_on_unsuccessful_response()
+    /**
+     * @test
+     */
+    public function creation_fails_on_unsuccessful_response(): void
     {
         $this->httpHandler->append($response = new Response(400, [], '{}'));
 
@@ -135,17 +145,21 @@ final class DynamicLinksTest extends TestCase
         }
     }
 
-    /** @test */
-    public function creation_fails_gracefully_if_an_unsuccessful_response_cannot_be_parsed()
+    /**
+     * @test
+     */
+    public function creation_fails_gracefully_if_an_unsuccessful_response_cannot_be_parsed(): void
     {
-        $this->httpHandler->append($response = new Response(400, [], 'probably html'));
+        $this->httpHandler->append(new Response(400, [], 'probably html'));
 
         $this->expectException(FailedToCreateDynamicLink::class);
         $this->service->createDynamicLink('https://domain.tld/irrelevant');
     }
 
-    /** @test */
-    public function it_shortens_a_lonk_link_from_an_array_of_parameters()
+    /**
+     * @test
+     */
+    public function it_shortens_a_lonk_link_from_an_array_of_parameters(): void
     {
         $this->httpHandler->append(
             new Response(200, [], JSON::encode($responseData = [
@@ -163,18 +177,22 @@ final class DynamicLinksTest extends TestCase
         $this->assertSame($previewLink, (string) $dynamicLink->previewUri());
         $this->assertSame($this->dynamicLinksDomain, $dynamicLink->domain());
         $this->assertSame($suffix, $dynamicLink->suffix());
-        $this->assertEquals($responseData, \json_decode(JSON::encode($dynamicLink), true));
+        $this->assertEquals($responseData, \json_decode(JSON::encode($dynamicLink), true, 512, \JSON_THROW_ON_ERROR));
     }
 
-    /** @test */
-    public function it_rejects_an_invalid_shortening_parameter()
+    /**
+     * @test
+     */
+    public function it_rejects_an_invalid_shortening_parameter(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->service->shortenLongDynamicLink(true);
     }
 
-    /** @test */
-    public function shortening_fails_if_no_connection_is_available()
+    /**
+     * @test
+     */
+    public function shortening_fails_if_no_connection_is_available(): void
     {
         $connectionError = ConnectException::create($this->createMock(RequestInterface::class));
         $this->httpHandler->append($connectionError);
@@ -183,8 +201,10 @@ final class DynamicLinksTest extends TestCase
         $this->service->shortenLongDynamicLink('https://domain.tld/irrelevant');
     }
 
-    /** @test */
-    public function shortening_fails_on_unsuccessful_response()
+    /**
+     * @test
+     */
+    public function shortening_fails_on_unsuccessful_response(): void
     {
         $this->httpHandler->append($response = new Response(400, [], '{}'));
 
@@ -199,17 +219,21 @@ final class DynamicLinksTest extends TestCase
         }
     }
 
-    /** @test */
-    public function shortening_fails_gracefully_if_an_unsuccessful_response_cannot_be_parsed()
+    /**
+     * @test
+     */
+    public function shortening_fails_gracefully_if_an_unsuccessful_response_cannot_be_parsed(): void
     {
-        $this->httpHandler->append($response = new Response(400, [], 'probably html'));
+        $this->httpHandler->append(new Response(400, [], 'probably html'));
 
         $this->expectException(FailedToShortenLongDynamicLink::class);
         $this->service->shortenLongDynamicLink('https://domain.tld/irrelevant');
     }
 
-    /** @test */
-    public function it_gets_link_statistics()
+    /**
+     * @test
+     */
+    public function it_gets_link_statistics(): void
     {
         $this->httpHandler->append(
             new Response(200, [], JSON::encode($responseData = [
@@ -280,15 +304,19 @@ final class DynamicLinksTest extends TestCase
         $this->assertCount(20, $eventStats->onIOS()->appReOpens());
     }
 
-    /** @test */
-    public function it_rejects_an_invalid_link_stats_parameter()
+    /**
+     * @test
+     */
+    public function it_rejects_an_invalid_link_stats_parameter(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->service->getStatistics(true);
     }
 
-    /** @test */
-    public function link_stats_fail_if_no_connection_is_available()
+    /**
+     * @test
+     */
+    public function link_stats_fail_if_no_connection_is_available(): void
     {
         $connectionError = ConnectException::create($this->createMock(RequestInterface::class));
         $this->httpHandler->append($connectionError);
@@ -297,8 +325,10 @@ final class DynamicLinksTest extends TestCase
         $this->service->getStatistics('anything');
     }
 
-    /** @test */
-    public function link_stats_fail_on_unsuccessful_response()
+    /**
+     * @test
+     */
+    public function link_stats_fail_on_unsuccessful_response(): void
     {
         $this->httpHandler->append($response = new Response(400, [], '{}'));
 
@@ -313,17 +343,21 @@ final class DynamicLinksTest extends TestCase
         }
     }
 
-    /** @test */
-    public function link_stats_fail_gracefully_if_an_unsuccessful_response_cannot_be_parsed()
+    /**
+     * @test
+     */
+    public function link_stats_fail_gracefully_if_an_unsuccessful_response_cannot_be_parsed(): void
     {
-        $this->httpHandler->append($response = new Response(400, [], 'probably html'));
+        $this->httpHandler->append(new Response(400, [], 'probably html'));
 
         $this->expectException(FailedToGetStatisticsForDynamicLink::class);
         $this->service->getStatistics('https://domain.tld/irrelevant');
     }
 
-    /** @test */
-    public function dynamic_link_components_can_be_created_new_or_from_arrays()
+    /**
+     * @test
+     */
+    public function dynamic_link_components_can_be_created_new_or_from_arrays(): void
     {
         $this->assertNotEmpty(CreateDynamicLink::new()->jsonSerialize()); // has defaults
         $this->assertEmpty(CreateDynamicLink::fromArray([])->jsonSerialize());

@@ -61,7 +61,7 @@ final class RegistrationTokens implements Countable, IteratorAggregate
 
     public function isEmpty(): bool
     {
-        return \count($this->tokens) === 0;
+        return $this->count() === 0;
     }
 
     /**
@@ -80,8 +80,8 @@ final class RegistrationTokens implements Countable, IteratorAggregate
         return \array_map('strval', $this->tokens);
     }
 
-    public function count()
+    public function count(): int
     {
-        return \count($this->tokens);
+        return \is_countable($this->tokens) ? \count($this->tokens) : 0;
     }
 }

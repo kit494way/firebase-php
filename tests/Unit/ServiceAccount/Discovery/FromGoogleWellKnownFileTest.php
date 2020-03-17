@@ -13,19 +13,20 @@ use Kreait\Firebase\Tests\UnitTestCase;
  */
 class FromGoogleWellKnownFileTest extends UnitTestCase
 {
+    /** @var string */
     private $backup;
 
-    protected function setUp()
+    protected function setUp(): void
     {
-        $this->backup = \getenv('HOME');
+        $this->backup = (string) \getenv('HOME');
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         \putenv(\sprintf('%s=%s', 'HOME', $this->backup));
     }
 
-    public function testItKnowsWhenTheFileIsInvalid()
+    public function testItKnowsWhenTheFileIsInvalid(): void
     {
         $discoverer = new FromGoogleWellKnownFile();
 

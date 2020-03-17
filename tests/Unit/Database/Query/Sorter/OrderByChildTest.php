@@ -20,11 +20,11 @@ class OrderByChildTest extends UnitTestCase
      *
      * @dataProvider valueProvider
      */
-    public function testOrderByChild($childKey, $expected, $given)
+    public function testOrderByChild($childKey, $expected, $given): void
     {
         $sut = new OrderByChild($childKey);
 
-        $this->assertContains(
+        $this->assertStringContainsString(
             'orderBy='.\rawurlencode(\sprintf('"%s"', $childKey)),
             (string) $sut->modifyUri(new Uri('http://domain.tld'))
         );
@@ -32,7 +32,7 @@ class OrderByChildTest extends UnitTestCase
         $this->assertSame($expected, $sut->modifyValue($given));
     }
 
-    public function valueProvider()
+    public function valueProvider(): array
     {
         return [
             'scalar' => [

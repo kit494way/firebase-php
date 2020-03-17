@@ -15,14 +15,14 @@ use stdClass;
  */
 final class RegistrationTokensTest extends TestCase
 {
-    const IS_EMPTY = true;
-    const IS_NOT_EMPTY = false;
-
     /**
      * @test
+     *
+     * @param mixed $value
+     *
      * @dataProvider validValuesWithExpectedCounts
      */
-    public function it_can_be_created_from_values($expectedCount, $value)
+    public function it_can_be_created_from_values(int $expectedCount, $value): void
     {
         $tokens = RegistrationTokens::fromValue($value);
 
@@ -32,16 +32,21 @@ final class RegistrationTokensTest extends TestCase
 
     /**
      * @test
+     *
+     * @param mixed $value
+     *
      * @dataProvider invalidValues
      */
-    public function it_rejects_invalid_values($value)
+    public function it_rejects_invalid_values($value): void
     {
         $this->expectException(InvalidArgumentException::class);
         RegistrationTokens::fromValue($value);
     }
 
-    /** @test */
-    public function it_returns_strings()
+    /**
+     * @test
+     */
+    public function it_returns_strings(): void
     {
         $token = RegistrationToken::fromValue('foo');
 
@@ -49,7 +54,7 @@ final class RegistrationTokensTest extends TestCase
         $this->assertEquals(['foo', 'foo'], $tokens->asStrings());
     }
 
-    public function validValuesWithExpectedCounts()
+    public function validValuesWithExpectedCounts(): array
     {
         $foo = RegistrationToken::fromValue('foo');
 
@@ -62,7 +67,7 @@ final class RegistrationTokensTest extends TestCase
         ];
     }
 
-    public function invalidValues()
+    public function invalidValues(): array
     {
         return [
             [new stdClass()],

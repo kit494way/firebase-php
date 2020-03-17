@@ -28,8 +28,8 @@ final class Messages implements Countable, IteratorAggregate
         yield from $this->messages;
     }
 
-    public function count()
+    public function count(): int
     {
-        return \count($this->messages);
+        return \is_countable($this->messages) ? \count($this->messages) : 0;
     }
 }

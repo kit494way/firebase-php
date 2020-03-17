@@ -9,6 +9,7 @@ use Kreait\Firebase\Factory;
 use Kreait\Firebase\Request\CreateUser;
 use Kreait\Firebase\ServiceAccount;
 use Kreait\Firebase\Util\JSON;
+use Kreait\Firebase\Value\Uid;
 use Throwable;
 
 abstract class IntegrationTestCase extends FirebaseTestCase
@@ -28,7 +29,7 @@ abstract class IntegrationTestCase extends FirebaseTestCase
      */
     protected static $registrationTokens = [];
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         self::$serviceAccount = self::credentialsFromEnvironment() ?? self::credentialsFromFile();
 
@@ -57,7 +58,10 @@ abstract class IntegrationTestCase extends FirebaseTestCase
             );
     }
 
-    protected function deleteUser($userOrUid)
+    /**
+     * @param UserRecord|Uid|string $userOrUid
+     */
+    protected function deleteUser($userOrUid): void
     {
         $uid = $userOrUid instanceof UserRecord ? $userOrUid->uid : $userOrUid;
 

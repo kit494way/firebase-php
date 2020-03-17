@@ -16,7 +16,7 @@ class UidTest extends TestCase
     /**
      * @dataProvider validValues
      */
-    public function testWithValidValue($value)
+    public function testWithValidValue(string $value): void
     {
         $uid = new Uid($value);
 
@@ -28,24 +28,20 @@ class UidTest extends TestCase
     /**
      * @dataProvider invalidValues
      */
-    public function testWithInvalidValue($value)
+    public function testWithInvalidValue(string $value): void
     {
         $this->expectException(InvalidArgumentException::class);
         new Uid($value);
     }
 
-    public function validValues(): array
+    public function validValues(): iterable
     {
-        return [
-            ['uid'],
-        ];
+        yield ['uid'];
     }
 
-    public function invalidValues(): array
+    public function invalidValues(): iterable
     {
-        return [
-            [''],
-            [\str_repeat('x', 129)],
-        ];
+        yield [''];
+        yield [\str_repeat('x', 129)];
     }
 }

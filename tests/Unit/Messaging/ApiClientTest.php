@@ -33,7 +33,7 @@ class ApiClientTest extends TestCase
     /** @var ApiClient */
     private $client;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->mock = new MockHandler();
         $handler = HandlerStack::create($this->mock);
@@ -46,9 +46,10 @@ class ApiClientTest extends TestCase
     }
 
     /**
+     * @param class-string<\Kreait\Firebase\Exception\MessagingException> $expectedClass
      * @dataProvider requestExceptions
      */
-    public function testCatchRequestException($requestException, $expectedClass)
+    public function testCatchRequestException(RequestException $requestException, string $expectedClass): void
     {
         $this->mock->append($requestException);
 
@@ -56,7 +57,7 @@ class ApiClientTest extends TestCase
         $this->client->send(new Request('GET', 'http://example.com'));
     }
 
-    public function testCatchAnyException()
+    public function testCatchAnyException(): void
     {
         $this->mock->append(new Exception());
 

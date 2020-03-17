@@ -28,7 +28,7 @@ final class AuthError implements JsonSerializable
         $this->domain = $domain ?? 'global';
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return [
             'error' => [

@@ -33,7 +33,7 @@ use Throwable;
 
 class Factory
 {
-    const API_CLIENT_SCOPES = [
+    public const API_CLIENT_SCOPES = [
         'https://www.googleapis.com/auth/iam',
         'https://www.googleapis.com/auth/cloud-platform',
         'https://www.googleapis.com/auth/firebase',
@@ -44,53 +44,37 @@ class Factory
         'https://www.googleapis.com/auth/securetoken',
     ];
 
-    /**
-     * @var UriInterface|null
-     */
+    /** @var UriInterface|null */
     protected $databaseUri;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     protected $defaultStorageBucket;
 
-    /**
-     * @var ServiceAccount|null
-     */
+    /** @var ServiceAccount|null */
     protected $serviceAccount;
 
-    /**
-     * @var Discoverer|null
-     */
+    /** @var Discoverer|null */
     protected $serviceAccountDiscoverer;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     protected $uid;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $claims = [];
 
-    /**
-     * @var CacheInterface|null
-     */
+    /** @var CacheInterface|null */
     protected $verifierCache;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $httpClientConfig = [];
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $httpClientMiddlewares = [];
 
+    /** @var string */
     protected static $databaseUriPattern = 'https://%s.firebaseio.com';
 
+    /** @var string */
     protected static $storageBucketNamePattern = '%s.appspot.com';
 
     /** @var Clock */
@@ -102,6 +86,9 @@ class Factory
         $this->clock = new SystemClock();
     }
 
+    /**
+     * @param ServiceAccount|string|array $serviceAccount
+     */
     public function withServiceAccount($serviceAccount): self
     {
         $serviceAccount = ServiceAccount::fromValue($serviceAccount);
@@ -128,6 +115,9 @@ class Factory
         return $factory;
     }
 
+    /**
+     * @param UriInterface|string $uri
+     */
     public function withDatabaseUri($uri): self
     {
         $factory = clone $this;
@@ -136,7 +126,7 @@ class Factory
         return $factory;
     }
 
-    public function withDefaultStorageBucket($name): self
+    public function withDefaultStorageBucket(string $name): self
     {
         $factory = clone $this;
         $factory->defaultStorageBucket = $name;

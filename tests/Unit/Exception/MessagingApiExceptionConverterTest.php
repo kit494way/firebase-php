@@ -30,13 +30,15 @@ class MessagingApiExceptionConverterTest extends TestCase
     /** @var MessagingApiExceptionConverter */
     private $converter;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->converter = new MessagingApiExceptionConverter();
     }
 
-    /** @test */
-    public function it_converts_a_connect_exception()
+    /**
+     * @test
+     */
+    public function it_converts_a_connect_exception(): void
     {
         $connectException = new ConnectException(
             'curl error xx',
@@ -48,14 +50,17 @@ class MessagingApiExceptionConverterTest extends TestCase
 
     /**
      * @test
+     *
+     * @param class-string<\Kreait\Firebase\Exception\MessagingException> $expectedClass
+     *
      * @dataProvider exceptions
      */
-    public function it_converts_exceptions(Throwable $e, string $expectedClass)
+    public function it_converts_exceptions(Throwable $e, string $expectedClass): void
     {
         $this->assertInstanceOf($expectedClass, $this->converter->convertException($e));
     }
 
-    public function exceptions()
+    public function exceptions(): array
     {
         return [
             [new ConnectException('Connection Failed', new Request('GET', 'https://domain.tld')), ApiConnectionFailed::class],

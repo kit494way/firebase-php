@@ -71,31 +71,22 @@ class Notification implements \JsonSerializable
         return $notification;
     }
 
-    /**
-     * @return string|null
-     */
-    public function title()
+    public function title(): ?string
     {
         return $this->title;
     }
 
-    /**
-     * @return string|null
-     */
-    public function body()
+    public function body(): ?string
     {
         return $this->body;
     }
 
-    /**
-     * @return string|null
-     */
-    public function imageUrl()
+    public function imageUrl(): ?string
     {
         return $this->imageUrl;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return \array_filter([
             'title' => $this->title,

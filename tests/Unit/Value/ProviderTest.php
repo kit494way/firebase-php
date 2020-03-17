@@ -15,7 +15,7 @@ class ProviderTest extends TestCase
     /**
      * @dataProvider validValues
      */
-    public function testWithValidValue($value)
+    public function testWithValidValue(string $value): void
     {
         $provider = new Provider($value);
 
@@ -24,10 +24,8 @@ class ProviderTest extends TestCase
         $this->assertTrue($provider->equalsTo($value));
     }
 
-    public function validValues(): array
+    public function validValues(): iterable
     {
-        return [
-            ['phone'],
-        ];
+        yield ['phone'];
     }
 }

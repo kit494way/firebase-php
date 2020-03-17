@@ -13,7 +13,7 @@ use Kreait\Firebase\Util\JSON;
  */
 class DatabaseTest extends DatabaseTestCase
 {
-    public function testWithSanitizableProjectId()
+    public function testWithSanitizableProjectId(): void
     {
         $credentialsPath = self::$fixturesDir.'/test_credentials.json';
 

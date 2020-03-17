@@ -56,7 +56,7 @@ final class NavigationInfo implements JsonSerializable
         return $info;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return $this->data;
     }

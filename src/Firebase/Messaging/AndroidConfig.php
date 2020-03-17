@@ -6,9 +6,7 @@ namespace Kreait\Firebase\Messaging;
 
 class AndroidConfig implements Config
 {
-    /**
-     * @var array
-     */
+    /** @var array */
     private $rawConfig;
 
     private function __construct()
@@ -23,7 +21,7 @@ class AndroidConfig implements Config
         return $config;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return \array_filter($this->rawConfig, static function ($value) {
             return $value !== null;

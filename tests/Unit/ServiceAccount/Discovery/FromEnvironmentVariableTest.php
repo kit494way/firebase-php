@@ -13,22 +13,20 @@ use Kreait\Firebase\Tests\UnitTestCase;
  */
 class FromEnvironmentVariableTest extends UnitTestCase
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     private $envVarName;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->envVarName = 'FIREBASE_FROM_ENV_VAR_TEST';
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         \putenv($this->envVarName);
     }
 
-    public function testItWorksWithAFile()
+    public function testItWorksWithAFile(): void
     {
         \putenv(\sprintf('%s=%s', $this->envVarName, self::$fixturesDir.'/ServiceAccount/valid.json'));
 
@@ -38,13 +36,10 @@ class FromEnvironmentVariableTest extends UnitTestCase
         $this->addToAssertionCount(1);
     }
 
-    public function testItWorksWithAJsonString()
+    public function testItWorksWithAJsonString(): void
     {
-        $json = \json_encode(
-            \json_decode(
-                (string) \file_get_contents(self::$fixturesDir.'/ServiceAccount/valid.json'), true
-            )
-        );
+        $json = \json_encode(\json_decode((string) \file_get_contents(self::$fixturesDir.'/ServiceAccount/valid.json'),
+            true, 512, \JSON_THROW_ON_ERROR), \JSON_THROW_ON_ERROR);
 
         \putenv(\sprintf('%s=%s', $this->envVarName, $json));
 
@@ -54,7 +49,7 @@ class FromEnvironmentVariableTest extends UnitTestCase
         $this->addToAssertionCount(1);
     }
 
-    public function testItRejectsAnInvalidJsonString()
+    public function testItRejectsAnInvalidJsonString(): void
     {
         \putenv(\sprintf('%s=%s', $this->envVarName, '{'));
 
@@ -63,7 +58,7 @@ class FromEnvironmentVariableTest extends UnitTestCase
         $sut();
     }
 
-    public function testItKnowWhenTheVariableIsNotSet()
+    public function testItKnowWhenTheVariableIsNotSet(): void
     {
         $this->expectException(ServiceAccountDiscoveryFailed::class);
 
@@ -71,7 +66,7 @@ class FromEnvironmentVariableTest extends UnitTestCase
         $sut();
     }
 
-    public function testItKnowWhenTheVariableHasAValueCausingAnError()
+    public function testItKnowWhenTheVariableHasAValueCausingAnError(): void
     {
         \putenv(\sprintf('%s=%s', $this->envVarName, self::$fixturesDir.'/ServiceAccount/invalid.json'));
 

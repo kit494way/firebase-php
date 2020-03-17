@@ -8,15 +8,14 @@ use Kreait\Firebase\Exception\InvalidArgumentException;
 use Kreait\Firebase\Value\Url;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @internal
- */
+/** @internal */
 class UrlTest extends TestCase
 {
     /**
+     * @param mixed $value
      * @dataProvider validValues
      */
-    public function testWithValidValue($value)
+    public function testWithValidValue($value): void
     {
         $url = Url::fromValue($value);
 
@@ -29,32 +28,30 @@ class UrlTest extends TestCase
     }
 
     /**
+     * @param mixed $value
      * @dataProvider invalidValues
      */
-    public function testWithInvalidValue($value)
+    public function testWithInvalidValue($value): void
     {
         $this->expectException(InvalidArgumentException::class);
         Url::fromValue($value);
     }
 
-    public function validValues(): array
+    public function validValues(): iterable
     {
-        return [
-            ['http://domain.tld'],
-            [new class() {
-                public function __toString()
-                {
-                    return 'https://domain.tld';
-                }
-            }],
-        ];
+        yield ['http://domain.tld'];
+
+        yield [new class() {
+            public function __toString()
+            {
+                return 'https://domain.tld';
+            }
+        }];
     }
 
-    public function invalidValues(): array
+    public function invalidValues(): iterable
     {
-        return [
-            ['http:///domain.tld'],
-            ['http://:80'],
-        ];
+        yield ['http:///domain.tld'];
+        yield ['http://:80'];
     }
 }

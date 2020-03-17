@@ -13,41 +13,41 @@ use Kreait\Firebase\Util\JSON;
  */
 class JSONTest extends UnitTestCase
 {
-    public function testEncodeJson()
+    public function testEncodeJson(): void
     {
-        $this->assertSame(\json_encode(true), JSON::encode(true));
+        $this->assertSame(\json_encode(true, \JSON_THROW_ON_ERROR), JSON::encode(true));
     }
 
-    public function testEncodeInvalidJson()
+    public function testEncodeInvalidJson(): void
     {
         $this->expectException(InvalidArgumentException::class);
 
         JSON::encode(\INF);
     }
 
-    public function testDecodeJson()
+    public function testDecodeJson(): void
     {
-        $this->assertSame(\json_decode('true', false), JSON::decode('true', false));
-        $this->assertSame(\json_decode('true', true), JSON::decode('true', true));
+        $this->assertSame(\json_decode('true', false, 512, \JSON_THROW_ON_ERROR), JSON::decode('true', false));
+        $this->assertSame(\json_decode('true', true, 512, \JSON_THROW_ON_ERROR), JSON::decode('true', true));
     }
 
-    public function testDecodeInvalidJson()
+    public function testDecodeInvalidJson(): void
     {
         $this->expectException(InvalidArgumentException::class);
 
         JSON::decode('{');
     }
 
-    public function testIsValid()
+    public function testIsValid(): void
     {
-        $this->assertTrue(JSON::isValid(\json_encode([])));
+        $this->assertTrue(JSON::isValid(\json_encode([], \JSON_THROW_ON_ERROR)));
         $this->assertFalse(JSON::isValid('<html></html>'));
     }
 
-    public function testPrettyPrint()
+    public function testPrettyPrint(): void
     {
         $data = ['foo' => 'bar'];
 
-        $this->assertSame(\json_encode($data, \JSON_PRETTY_PRINT), JSON::prettyPrint($data));
+        $this->assertSame(\json_encode($data, \JSON_THROW_ON_ERROR | \JSON_PRETTY_PRINT), JSON::prettyPrint($data));
     }
 }

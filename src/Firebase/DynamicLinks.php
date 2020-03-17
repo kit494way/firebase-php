@@ -128,40 +128,49 @@ final class DynamicLinks
         return (new DynamicLink\GetStatisticsForDynamicLink\GuzzleApiClientHandler($this->apiClient))->handle($action);
     }
 
+    /**
+     * @param CreateDynamicLink|array|DynamicLink|UriInterface|string $actionOrParametersOrUrl
+     */
     private function ensureCreateAction($actionOrParametersOrUrl): CreateDynamicLink
     {
-        if ($this->isStringable($actionOrParametersOrUrl)) {
-            return CreateDynamicLink::forUrl((string) $actionOrParametersOrUrl);
+        if ($actionOrParametersOrUrl instanceof CreateDynamicLink) {
+            return $actionOrParametersOrUrl;
         }
 
         if (\is_array($actionOrParametersOrUrl)) {
             return CreateDynamicLink::fromArray($actionOrParametersOrUrl);
         }
 
-        if ($actionOrParametersOrUrl instanceof CreateDynamicLink) {
-            return $actionOrParametersOrUrl;
+        if ($this->isStringable($actionOrParametersOrUrl)) {
+            return CreateDynamicLink::forUrl((string) $actionOrParametersOrUrl);
         }
 
         throw new InvalidArgumentException('Unsupported action');
     }
 
+    /**
+     * @param ShortenLongDynamicLink|array|DynamicLink|UriInterface|string $actionOrParametersOrUrl
+     */
     private function ensureShortenAction($actionOrParametersOrUrl): ShortenLongDynamicLink
     {
-        if ($this->isStringable($actionOrParametersOrUrl)) {
-            return ShortenLongDynamicLink::forLongDynamicLink((string) $actionOrParametersOrUrl);
+        if ($actionOrParametersOrUrl instanceof ShortenLongDynamicLink) {
+            return $actionOrParametersOrUrl;
         }
 
         if (\is_array($actionOrParametersOrUrl)) {
             return ShortenLongDynamicLink::fromArray($actionOrParametersOrUrl);
         }
 
-        if ($actionOrParametersOrUrl instanceof ShortenLongDynamicLink) {
-            return $actionOrParametersOrUrl;
+        if ($this->isStringable($actionOrParametersOrUrl)) {
+            return ShortenLongDynamicLink::forLongDynamicLink((string) $actionOrParametersOrUrl);
         }
 
         throw new InvalidArgumentException('Unsupported action');
     }
 
+    /**
+     * @param GetStatisticsForDynamicLink|DynamicLink|UriInterface|string $actionOrUrl
+     */
     private function ensureGetStatisticsAction($actionOrUrl): GetStatisticsForDynamicLink
     {
         if ($this->isStringable($actionOrUrl)) {
@@ -175,6 +184,9 @@ final class DynamicLinks
         throw new InvalidArgumentException('Unsupported action');
     }
 
+    /**
+     * @param mixed $value
+     */
     private function isStringable($value): bool
     {
         return \is_string($value) || (\is_object($value) && \method_exists($value, '__toString'));

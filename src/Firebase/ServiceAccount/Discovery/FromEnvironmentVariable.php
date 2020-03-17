@@ -13,9 +13,7 @@ use Throwable;
  */
 class FromEnvironmentVariable
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     private $name;
 
     /**

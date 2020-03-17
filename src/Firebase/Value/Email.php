@@ -9,9 +9,7 @@ use Kreait\Firebase\Value;
 
 class Email implements \JsonSerializable, Value
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     private $value;
 
     /**
@@ -31,7 +29,7 @@ class Email implements \JsonSerializable, Value
         return $this->value;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): string
     {
         return $this->value;
     }

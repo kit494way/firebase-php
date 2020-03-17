@@ -15,25 +15,21 @@ use Psr\Http\Message\RequestInterface;
  */
 class MiddlewareTest extends UnitTestCase
 {
-    /**
-     * @var Psr7\Request
-     */
+    /** @var Psr7\Request */
     private $request;
 
-    /**
-     * @var \Closure
-     */
+    /** @var \Closure */
     private $handler;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->request = new Psr7\Request('GET', 'http://domain.tld');
-        $this->handler = static function (RequestInterface $request, array $options = []) {
+        $this->handler = static function (RequestInterface $request) {
             return $request;
         };
     }
 
-    public function testEnsureJsonSuffix()
+    public function testEnsureJsonSuffix(): void
     {
         $middleware = Middleware::ensureJsonSuffix();
         $handlerClosure = $middleware($this->handler);
@@ -44,12 +40,12 @@ class MiddlewareTest extends UnitTestCase
         $this->assertStringEndsWith('.json', $request->getUri()->getPath());
     }
 
-    public function testOverrideAuth()
+    public function testOverrideAuth(): void
     {
         $authenticatedRequest = new Psr7\Request('GET', 'http://domain.tld?is_authenticated=true'); // Doesn't matter :)
 
         $auth = $this->createMock(Auth::class);
-        $auth->expects($this->any())
+        $auth
             ->method('authenticateRequest')
             ->with($this->request)
             ->willReturn($authenticatedRequest);

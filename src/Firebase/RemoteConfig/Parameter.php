@@ -4,42 +4,35 @@ declare(strict_types=1);
 
 namespace Kreait\Firebase\RemoteConfig;
 
-use Kreait\Firebase\Exception\InvalidArgumentException;
-
 class Parameter implements \JsonSerializable
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     private $name;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $description = '';
 
-    /**
-     * @var DefaultValue
-     */
+    /** @var DefaultValue */
     private $defaultValue;
 
-    /**
-     * @var ConditionalValue[]
-     */
+    /** @var ConditionalValue[] */
     private $conditionalValues = [];
 
     private function __construct()
     {
     }
 
+    /**
+     * @param DefaultValue|string|null $defaultValue
+     */
     public static function named(string $name, $defaultValue = null): self
     {
+        if (\is_string($defaultValue)) {
+            $defaultValue = DefaultValue::with($defaultValue);
+        }
+
         if ($defaultValue === null) {
             $defaultValue = DefaultValue::none();
-        } elseif (\is_string($defaultValue)) {
-            $defaultValue = DefaultValue::with($defaultValue);
-        } else {
-            throw new InvalidArgumentException('The default value for a remote config parameter must be a string or NULL to use the in-app default.');
         }
 
         $parameter = new self();
@@ -62,6 +55,9 @@ class Parameter implements \JsonSerializable
         return $parameter;
     }
 
+    /**
+     * @param DefaultValue|string $defaultValue
+     */
     public function withDefaultValue($defaultValue): self
     {
         $defaultValue = $defaultValue instanceof DefaultValue ? $defaultValue : DefaultValue::with($defaultValue);
@@ -113,7 +109,7 @@ class Parameter implements \JsonSerializable
         return $parameter;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         $conditionalValues = [];
         foreach ($this->conditionalValues() as $conditionalValue) {

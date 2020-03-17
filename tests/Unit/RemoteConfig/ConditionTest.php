@@ -14,9 +14,11 @@ use Kreait\Firebase\Tests\UnitTestCase;
 class ConditionTest extends UnitTestCase
 {
     /**
+     * @param TagColor|string $tagColor
+     *
      * @dataProvider valueProvider
      */
-    public function testCreateCondition(string $name, string $expression = null, $tagColor = null)
+    public function testCreateCondition(string $name, string $expression = null, $tagColor = null): void
     {
         $condition = Condition::named($name);
 
@@ -39,7 +41,7 @@ class ConditionTest extends UnitTestCase
         $this->assertEquals($condition, Condition::fromArray($expected));
     }
 
-    public function valueProvider()
+    public function valueProvider(): array
     {
         return [
             ['name', 'expression', TagColor::GREEN],

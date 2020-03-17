@@ -6,7 +6,6 @@ namespace Kreait\Firebase\Database\Query\Filter;
 
 use Kreait\Firebase\Database\Query\Filter;
 use Kreait\Firebase\Database\Query\ModifierTrait;
-use Kreait\Firebase\Exception\InvalidArgumentException;
 use Kreait\Firebase\Util\JSON;
 use Psr\Http\Message\UriInterface;
 
@@ -14,14 +13,14 @@ final class EqualTo implements Filter
 {
     use ModifierTrait;
 
+    /** @var bool|float|int|string|null */
     private $value;
 
+    /**
+     * @param bool|float|int|string|null $value
+     */
     public function __construct($value)
     {
-        if ($value !== null && !\is_scalar($value)) {
-            throw new InvalidArgumentException('Only scalar values are allowed for "equalTo" queries.');
-        }
-
         $this->value = $value;
     }
 

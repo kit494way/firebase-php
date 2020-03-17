@@ -58,9 +58,7 @@ final class IdTokenVerifier implements Verifier
             }
 
             return $token;
-        } catch (UnknownKey $e) {
-            throw $e;
-        } catch (InvalidSignature $e) {
+        } catch (UnknownKey | InvalidSignature $e) {
             throw $e;
         } catch (ExpiredToken $e) {
             // Re-check expiry with the clock
@@ -121,6 +119,9 @@ final class IdTokenVerifier implements Verifier
         return $authenticatedAt < $check;
     }
 
+    /**
+     * @param Token|mixed $token
+     */
     private function ensureToken($token): Token
     {
         if ($token instanceof Token) {

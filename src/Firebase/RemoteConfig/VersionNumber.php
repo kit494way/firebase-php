@@ -9,15 +9,16 @@ use Kreait\Firebase\Value;
 
 final class VersionNumber implements \JsonSerializable, Value
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     private $value;
 
     private function __construct()
     {
     }
 
+    /**
+     * @param mixed $value
+     */
     public static function fromValue($value): self
     {
         $valueString = (string) $value;
@@ -32,12 +33,12 @@ final class VersionNumber implements \JsonSerializable, Value
         return $new;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return $this->value;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): string
     {
         return $this->value;
     }

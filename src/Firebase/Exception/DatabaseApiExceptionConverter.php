@@ -40,7 +40,7 @@ class DatabaseApiExceptionConverter
         return new DatabaseError($exception->getMessage(), $exception->getCode(), $exception);
     }
 
-    private function convertGuzzleRequestException(RequestException $e)
+    private function convertGuzzleRequestException(RequestException $e): DatabaseException
     {
         $message = $e->getMessage();
         $code = $e->getCode();

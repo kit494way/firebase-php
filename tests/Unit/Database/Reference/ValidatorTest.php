@@ -15,17 +15,13 @@ use Psr\Http\Message\UriInterface;
  */
 class ValidatorTest extends UnitTestCase
 {
-    /**
-     * @var UriInterface
-     */
+    /** @var UriInterface */
     private $uri;
 
-    /**
-     * @var Validator
-     */
+    /** @var Validator */
     private $validator;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -33,28 +29,41 @@ class ValidatorTest extends UnitTestCase
         $this->validator = new Validator();
     }
 
-    public function testValidateDepth()
+    public function testValidateDepth(): void
     {
-        $uri = $this->uri->withPath(\str_pad('', (Validator::MAX_DEPTH + 1) * 2, 'x/'));
+        $uri = $this->uri->withPath(\implode('/', \array_fill(0, 33, 'x')));
 
         $this->expectException(InvalidArgumentException::class);
         $this->validator->validateUri($uri);
     }
 
-    public function testValidateKeySize()
+    public function testValidateKeySize(): void
     {
-        $uri = $this->uri->withPath(\str_pad('', Validator::MAX_KEY_SIZE + 1, 'x'));
+        $uri = $this->uri->withPath(\str_pad('', 769, 'x'));
 
         $this->expectException(InvalidArgumentException::class);
         $this->validator->validateUri($uri);
     }
 
-    public function testValidateChars()
+    /**
+     * @dataProvider invalidChars
+     */
+    public function testValidateChar(string $char): void
     {
-        $invalid = \str_shuffle(Validator::INVALID_KEY_CHARS)[0];
-        $uri = $this->uri->withPath($invalid);
+        $uri = $this->uri->withPath($char);
 
         $this->expectException(InvalidArgumentException::class);
         $this->validator->validateUri($uri);
+    }
+
+    public function invalidChars(): array
+    {
+        return [
+            ['.'],
+            ['$'],
+            ['#'],
+            ['['],
+            [']'],
+        ];
     }
 }

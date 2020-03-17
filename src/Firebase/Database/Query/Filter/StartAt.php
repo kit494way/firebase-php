@@ -14,8 +14,12 @@ final class StartAt implements Filter
 {
     use ModifierTrait;
 
+    /** @var bool|float|int|string */
     private $value;
 
+    /**
+     * @param mixed $value
+     */
     public function __construct($value)
     {
         if (!\is_scalar($value)) {

@@ -14,42 +14,39 @@ use Kreait\Firebase\Exception\RemoteConfig\RemoteConfigError;
 use Kreait\Firebase\Exception\RemoteConfigException;
 use Kreait\Firebase\RemoteConfig\ApiClient;
 use Kreait\Firebase\Tests\UnitTestCase;
-use Throwable;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * @internal
  */
 class ApiClientTest extends UnitTestCase
 {
+    /** @var ClientInterface|MockObject */
     private $http;
 
     /** @var ApiClient */
     private $client;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->http = $this->createMock(ClientInterface::class);
         $this->client = new ApiClient($this->http);
     }
 
     /**
+     * @param class-string<\Kreait\Firebase\Exception\RemoteConfigException> $expectedClass
+     *
      * @dataProvider requestExceptions
      */
-    public function testCatchRequestException($requestException, $expectedClass)
+    public function testCatchRequestException(RequestException $requestException, string $expectedClass): void
     {
-        $this->http->expects($this->once())
-            ->method('request')
-            ->willThrowException($requestException);
+        $this->http->method('request')->willThrowException($requestException);
 
-        try {
-            $this->client->getTemplate();
-        } catch (Throwable $e) {
-            $this->assertInstanceOf(RemoteConfigException::class, $e);
-            $this->assertInstanceOf($expectedClass, $e);
-        }
+        $this->expectException($expectedClass);
+        $this->client->getTemplate();
     }
 
-    public function testCatchThrowable()
+    public function testCatchThrowable(): void
     {
         $this->http->expects($this->once())
             ->method('request')

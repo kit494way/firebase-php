@@ -14,12 +14,14 @@ use Kreait\Firebase\Auth\CreateActionLink\GuzzleApiClientHandler;
 use Kreait\Firebase\Value\Email;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
+use Prophecy\Prophecy\ObjectProphecy;
 
 /**
  * @internal
  */
 final class GuzzleApiClientHandlerTest extends TestCase
 {
+    /** @var ClientInterface|ObjectProphecy */
     private $client;
 
     /** @var CreateActionLink */
@@ -28,7 +30,7 @@ final class GuzzleApiClientHandlerTest extends TestCase
     /** @var GuzzleApiClientHandler */
     private $handler;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->client = $this->prophesize(ClientInterface::class);
         $this->action = CreateActionLink::new('SOME_TYPE', new Email('user@domain.tld'), ValidatedActionCodeSettings::empty());
@@ -36,8 +38,10 @@ final class GuzzleApiClientHandlerTest extends TestCase
         $this->handler = new GuzzleApiClientHandler($this->client->reveal());
     }
 
-    /** @test */
-    public function it_handles_an_unknown_guzzle_error()
+    /**
+     * @test
+     */
+    public function it_handles_an_unknown_guzzle_error(): void
     {
         $this->client->send(Argument::cetera())->willThrow(new TransferException('Something happened'));
 
@@ -45,8 +49,10 @@ final class GuzzleApiClientHandlerTest extends TestCase
         $this->handler->handle($this->action);
     }
 
-    /** @test */
-    public function it_fails_on_unsuccessful_responses()
+    /**
+     * @test
+     */
+    public function it_fails_on_unsuccessful_responses(): void
     {
         $this->client->send(Argument::cetera())->willReturn(new Response(400));
 
@@ -54,8 +60,10 @@ final class GuzzleApiClientHandlerTest extends TestCase
         $this->handler->handle($this->action);
     }
 
-    /** @test */
-    public function it_fails_on_unparseable_json_responses()
+    /**
+     * @test
+     */
+    public function it_fails_on_unparseable_json_responses(): void
     {
         $this->client->send(Argument::cetera())->willReturn(new Response(200, [], ','));
 
@@ -63,8 +71,10 @@ final class GuzzleApiClientHandlerTest extends TestCase
         $this->handler->handle($this->action);
     }
 
-    /** @test */
-    public function it_fails_on_unexpected_data()
+    /**
+     * @test
+     */
+    public function it_fails_on_unexpected_data(): void
     {
         $this->client->send(Argument::cetera())->willReturn(new Response(200, [], '{"no_oob_code": "nope"}'));
 
@@ -72,8 +82,10 @@ final class GuzzleApiClientHandlerTest extends TestCase
         $this->handler->handle($this->action);
     }
 
-    /** @test */
-    public function exceptions_contain_the_action_and_a_response()
+    /**
+     * @test
+     */
+    public function exceptions_contain_the_action_and_a_response(): void
     {
         $this->client->send(Argument::cetera())->willReturn($response = new Response(400));
 

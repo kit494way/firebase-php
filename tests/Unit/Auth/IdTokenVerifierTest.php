@@ -17,6 +17,7 @@ use Kreait\Firebase\Auth\IdTokenVerifier;
 use Lcobucci\JWT\Token;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
+use Prophecy\Prophecy\ObjectProphecy;
 use RuntimeException;
 use stdClass;
 use Throwable;
@@ -26,8 +27,10 @@ use Throwable;
  */
 final class IdTokenVerifierTest extends TestCase
 {
-    // Mocks
+    /** @var Verifier|ObjectProphecy */
     private $baseVerifier;
+
+    /** @var Token|ObjectProphecy */
     private $token;
 
     /** @var FrozenClock */
@@ -36,7 +39,7 @@ final class IdTokenVerifierTest extends TestCase
     /** @var IdTokenVerifier */
     private $verifier;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->token = $this->prophesize(Token::class);
         $this->token->getClaim('sub', Argument::any())->willReturn('sub');
@@ -48,16 +51,21 @@ final class IdTokenVerifierTest extends TestCase
 
     /**
      * @test
+     *
+     * @param mixed $value
+     *
      * @dataProvider invalidTokens
      */
-    public function it_rejects_invalid_tokens($value)
+    public function it_rejects_invalid_tokens($value): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->verifier->verifyIdToken($value);
     }
 
-    /** @test */
-    public function it_works()
+    /**
+     * @test
+     */
+    public function it_works(): void
     {
         $revealedToken = $this->token->reveal();
         $this->baseVerifier->verifyIdToken($revealedToken)->willReturn($revealedToken);
@@ -70,7 +78,7 @@ final class IdTokenVerifierTest extends TestCase
      * @test
      * @dataProvider passThroughErrors
      */
-    public function it_passes_through_errors(Throwable $error)
+    public function it_passes_through_errors(InvalidToken $error): void
     {
         $this->baseVerifier->verifyIdToken($this->token->reveal())->willThrow($error);
 
@@ -82,8 +90,10 @@ final class IdTokenVerifierTest extends TestCase
         }
     }
 
-    /** @test */
-    public function it_namespaces_errors()
+    /**
+     * @test
+     */
+    public function it_namespaces_errors(): void
     {
         $this->baseVerifier->verifyIdToken($this->token->reveal())->willThrow(new RuntimeException('Oops'));
 
@@ -91,8 +101,10 @@ final class IdTokenVerifierTest extends TestCase
         $this->verifier->verifyIdToken($this->token->reveal());
     }
 
-    /** @test */
-    public function it_accepts_a_non_expired_token_with_leeway()
+    /**
+     * @test
+     */
+    public function it_accepts_a_non_expired_token_with_leeway(): void
     {
         $this->token->getClaim('exp', Argument::any())->willReturn($this->clock->now()->modify('-10 seconds')->getTimestamp());
         $revealedToken = $this->token->reveal();
@@ -112,8 +124,10 @@ final class IdTokenVerifierTest extends TestCase
         $this->addToAssertionCount(1);
     }
 
-    /** @test */
-    public function it_accepts_a_token_issued_in_the_past_with_leeway()
+    /**
+     * @test
+     */
+    public function it_accepts_a_token_issued_in_the_past_with_leeway(): void
     {
         $this->token->getClaim('iat', Argument::any())->willReturn($this->clock->now()->modify('+10 seconds')->getTimestamp());
         $revealedToken = $this->token->reveal();
@@ -133,8 +147,10 @@ final class IdTokenVerifierTest extends TestCase
         $this->addToAssertionCount(1);
     }
 
-    /** @test */
-    public function it_accepts_a_token_authenticated_in_the_past_with_leeway()
+    /**
+     * @test
+     */
+    public function it_accepts_a_token_authenticated_in_the_past_with_leeway(): void
     {
         $this->token->getClaim('auth_time', Argument::any())->willReturn($this->clock->now()->modify('+10 seconds')->getTimestamp());
         $revealedToken = $this->token->reveal();
@@ -154,8 +170,10 @@ final class IdTokenVerifierTest extends TestCase
         $this->addToAssertionCount(1);
     }
 
-    /** @test */
-    public function it_rejects_an_empty_sub()
+    /**
+     * @test
+     */
+    public function it_rejects_an_empty_sub(): void
     {
         $this->token->getClaim('sub', Argument::any())->willReturn(''); // empty claim
         $revealedToken = $this->token->reveal();
@@ -165,8 +183,10 @@ final class IdTokenVerifierTest extends TestCase
         $this->verifier->verifyIdToken($revealedToken);
     }
 
-    /** @test */
-    public function it_rejects_a_missing_sub()
+    /**
+     * @test
+     */
+    public function it_rejects_a_missing_sub(): void
     {
         $this->token->getClaim('sub', false)->willReturn(false); // missing claim
         $revealedToken = $this->token->reveal();
@@ -176,7 +196,7 @@ final class IdTokenVerifierTest extends TestCase
         $this->verifier->verifyIdToken($revealedToken);
     }
 
-    public function invalidTokens()
+    public function invalidTokens(): array
     {
         return [
             'invalid format' => ['invalid'],
@@ -185,7 +205,7 @@ final class IdTokenVerifierTest extends TestCase
         ];
     }
 
-    public function passThroughErrors()
+    public function passThroughErrors(): array
     {
         return [
             [$this->createMock(UnknownKey::class)],

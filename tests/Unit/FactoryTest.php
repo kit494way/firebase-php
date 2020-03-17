@@ -21,17 +21,13 @@ use RuntimeException;
  */
 class FactoryTest extends UnitTestCase
 {
-    /**
-     * @var ServiceAccount
-     */
+    /** @var ServiceAccount */
     private $serviceAccount;
 
-    /**
-     * @var Factory
-     */
+    /** @var Factory */
     private $factory;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->serviceAccount = ServiceAccount::fromJsonFile(self::$fixturesDir.'/ServiceAccount/valid.json');
 
@@ -43,7 +39,7 @@ class FactoryTest extends UnitTestCase
         $this->factory = (new Factory())->withServiceAccountDiscoverer($discoverer);
     }
 
-    public function testItAcceptsACustomDatabaseUri()
+    public function testItAcceptsACustomDatabaseUri(): void
     {
         $uri = new Uri('http://domain.tld/');
         $databaseUri = $this->factory->withDatabaseUri($uri)->createDatabase()->getReference()->getUri();
@@ -52,69 +48,69 @@ class FactoryTest extends UnitTestCase
         $this->assertSame($uri->getHost(), $databaseUri->getHost());
     }
 
-    public function testItAcceptsACustomDefaultStorageBucket()
+    public function testItAcceptsACustomDefaultStorageBucket(): void
     {
         $storage = $this->factory->withDefaultStorageBucket('foo')->createStorage();
 
         $this->assertSame('foo', $storage->getBucket()->name());
     }
 
-    public function testItRejectsAnInvalidStorageConfiguration()
+    public function testItRejectsAnInvalidStorageConfiguration(): void
     {
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessageRegExp('/Unable to create a StorageClient.*/');
+        $this->expectExceptionMessageMatches('/Unable to create a StorageClient.*/');
 
         $this->factory->createStorage(['keyFilePath' => 'foo']);
     }
 
-    public function testItAcceptsAServiceAccount()
+    public function testItAcceptsAServiceAccount(): void
     {
         $this->factory->withServiceAccount($this->serviceAccount);
         $this->addToAssertionCount(1);
     }
 
-    public function testItAcceptsAClock()
+    public function testItAcceptsAClock(): void
     {
         $this->factory->withClock(new FrozenClock(new DateTimeImmutable()));
         $this->addToAssertionCount(1);
     }
 
-    public function testItAcceptsAVerifierCache()
+    public function testItAcceptsAVerifierCache(): void
     {
         $this->factory->withVerifierCache($this->createMock(CacheInterface::class));
         $this->addToAssertionCount(1);
     }
 
-    public function testItAcceptsACustomHttpClientConfig()
+    public function testItAcceptsACustomHttpClientConfig(): void
     {
         $apiClient = $this->factory->withHttpClientConfig(['key' => 'value'])->createApiClient();
 
         $this->assertSame('value', $apiClient->getConfig('key'));
     }
 
-    public function testItAcceptsAdditionalHttpClientMiddlewares()
+    public function testItAcceptsAdditionalHttpClientMiddlewares(): void
     {
         $this->factory->withHttpClientMiddlewares([
-            static function () {},
-            'name' => static function () {},
+            static function (): void {},
+            'name' => static function (): void {},
         ])->createApiClient();
 
         $this->addToAssertionCount(1);
     }
 
-    public function testServiceAccountDiscoveryCanBeDisabled()
+    public function testServiceAccountDiscoveryCanBeDisabled(): void
     {
         $this->expectException(LogicException::class);
         $this->factory->withDisabledAutoDiscovery()->createAuth();
     }
 
-    public function testDynamicLinksCanBeCreatedWithoutADefaultDomain()
+    public function testDynamicLinksCanBeCreatedWithoutADefaultDomain(): void
     {
         $this->factory->createDynamicLinksService();
         $this->addToAssertionCount(1);
     }
 
-    public function testCreateApiClientWithCustomHandlerStack()
+    public function testCreateApiClientWithCustomHandlerStack(): void
     {
         $stack = HandlerStack::create();
 

@@ -33,8 +33,8 @@ final class TopicSubscriptions implements Countable, IteratorAggregate
         yield from $this->subscriptions;
     }
 
-    public function count()
+    public function count(): int
     {
-        return \count($this->subscriptions);
+        return \is_countable($this->subscriptions) ? \count($this->subscriptions) : 0;
     }
 }

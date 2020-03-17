@@ -60,12 +60,12 @@ final class DynamicLink implements JsonSerializable
         return !empty($this->warnings());
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return $this->data;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return (string) $this->uri();
     }

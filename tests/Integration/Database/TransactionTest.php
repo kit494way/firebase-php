@@ -14,21 +14,19 @@ use Kreait\Firebase\Tests\Integration\DatabaseTestCase;
  */
 class TransactionTest extends DatabaseTestCase
 {
-    /**
-     * @var Reference
-     */
+    /** @var Reference */
     private $ref;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->ref = self::$db->getReference(self::$refPrefix);
     }
 
-    public function testAValueCanBeWritten()
+    public function testAValueCanBeWritten(): void
     {
         $ref = $this->ref->getChild(__FUNCTION__);
 
-        self::$db->runTransaction(static function (Transaction $transaction) use ($ref) {
+        self::$db->runTransaction(static function (Transaction $transaction) use ($ref): void {
             $transaction->snapshot($ref);
 
             $transaction->set($ref, 'new value');
@@ -37,14 +35,14 @@ class TransactionTest extends DatabaseTestCase
         $this->assertSame('new value', $ref->getValue());
     }
 
-    public function testATransactionPreventsAChangeWhenTheRemoteHasChanged()
+    public function testATransactionPreventsAChangeWhenTheRemoteHasChanged(): void
     {
         $firstRef = $this->ref->getChild(__FUNCTION__);
         $firstRef->set(['key' => 'value']);
 
         $this->expectException(TransactionFailed::class);
 
-        self::$db->runTransaction(static function (Transaction $transaction) use ($firstRef) {
+        self::$db->runTransaction(static function (Transaction $transaction) use ($firstRef): void {
             // Register a transaction for the given reference
             $transaction->snapshot($firstRef);
 
@@ -56,14 +54,14 @@ class TransactionTest extends DatabaseTestCase
         });
     }
 
-    public function testATransactionKeepsTrackOfMultipleReferences()
+    public function testATransactionKeepsTrackOfMultipleReferences(): void
     {
         $firstRef = $this->ref->getChild(__FUNCTION__.'_first');
         $secondRef = $this->ref->getChild(__FUNCTION__.'_second');
 
         $this->expectException(TransactionFailed::class);
 
-        self::$db->runTransaction(function (Transaction $transaction) use ($firstRef, $secondRef) {
+        self::$db->runTransaction(function (Transaction $transaction) use ($firstRef, $secondRef): void {
             // Register a transaction for the given reference
             $firstSnapshot = $transaction->snapshot($firstRef);
             $secondSnapshot = $transaction->snapshot($secondRef);
@@ -90,27 +88,27 @@ class TransactionTest extends DatabaseTestCase
         });
     }
 
-    public function testAValueCanBeDeleted()
+    public function testAValueCanBeDeleted(): void
     {
         $ref = $this->ref->getChild(__FUNCTION__);
 
-        self::$db->runTransaction(static function (Transaction $transaction) use ($ref) {
+        self::$db->runTransaction(static function (Transaction $transaction) use ($ref): void {
             $transaction->snapshot($ref);
 
             $transaction->remove($ref);
         });
 
-        $this->assertTrue($noExceptionHasBeenThrown = true);
+        $this->addToAssertionCount(1);
     }
 
-    public function testATransactionPreventsADeletionWhenTheRemoteHasChanged()
+    public function testATransactionPreventsADeletionWhenTheRemoteHasChanged(): void
     {
         $ref = $this->ref->getChild(__FUNCTION__);
         $ref->set(['key' => 'value']);
 
         $this->expectException(TransactionFailed::class);
 
-        self::$db->runTransaction(static function (Transaction $transaction) use ($ref) {
+        self::$db->runTransaction(static function (Transaction $transaction) use ($ref): void {
             // Register a transaction for the given reference
             $transaction->snapshot($ref);
 

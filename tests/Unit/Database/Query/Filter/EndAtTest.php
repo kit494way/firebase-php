@@ -14,7 +14,7 @@ use Kreait\Firebase\Tests\UnitTestCase;
  */
 class EndAtTest extends UnitTestCase
 {
-    public function testCreateWithInvalidValue()
+    public function testCreateWithInvalidValue(): void
     {
         $this->expectException(InvalidArgumentException::class);
 
@@ -22,16 +22,19 @@ class EndAtTest extends UnitTestCase
     }
 
     /**
+     * @param mixed $given
+     * @param string $expected
+     *
      * @dataProvider valueProvider
      */
-    public function testModifyUri($given, $expected)
+    public function testModifyUri($given, $expected): void
     {
         $filter = new EndAt($given);
 
-        $this->assertContains($expected, (string) $filter->modifyUri(new Uri('http://domain.tld')));
+        $this->assertStringContainsString($expected, (string) $filter->modifyUri(new Uri('http://domain.tld')));
     }
 
-    public function valueProvider()
+    public function valueProvider(): array
     {
         return [
             [1, 'endAt=1'],

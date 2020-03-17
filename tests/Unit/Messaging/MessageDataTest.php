@@ -17,7 +17,7 @@ final class MessageDataTest extends TestCase
      * @test
      * @dataProvider validData
      */
-    public function it_accepts_valid_data(array $data)
+    public function it_accepts_valid_data(array $data): void
     {
         MessageData::fromArray($data);
         $this->addToAssertionCount(1);
@@ -27,13 +27,13 @@ final class MessageDataTest extends TestCase
      * @test
      * @dataProvider invalidData
      */
-    public function it_rejects_invalid_data(array $data)
+    public function it_rejects_invalid_data(array $data): void
     {
         $this->expectException(InvalidArgumentException::class);
         MessageData::fromArray($data);
     }
 
-    public function validData()
+    public function validData(): array
     {
         return [
             'integer' => [
@@ -62,7 +62,7 @@ final class MessageDataTest extends TestCase
         ];
     }
 
-    public function invalidData()
+    public function invalidData(): array
     {
         return [
             'nested array' => [

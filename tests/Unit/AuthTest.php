@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Kreait\Firebase\Tests\Unit;
 
-use DateTimeImmutable;
 use Firebase\Auth\Token\Domain\Generator;
 use Firebase\Auth\Token\Domain\Verifier;
 use Firebase\Auth\Token\Exception\InvalidToken;
@@ -14,7 +13,6 @@ use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7\Response;
 use InvalidArgumentException;
-use Kreait\Clock\FrozenClock;
 use Kreait\Firebase\Auth;
 use Kreait\Firebase\Auth\ApiClient;
 use Kreait\Firebase\Exception\Auth\ExpiredOobCode;
@@ -23,6 +21,7 @@ use Kreait\Firebase\Tests\Unit\Util\AuthError;
 use Kreait\Firebase\Tests\UnitTestCase;
 use Kreait\Firebase\Util\JSON;
 use Lcobucci\JWT\Token;
+use PHPUnit\Framework\MockObject\MockObject;
 use Prophecy\Argument;
 use Psr\Http\Message\RequestInterface;
 use RuntimeException;
@@ -32,33 +31,33 @@ use RuntimeException;
  */
 final class AuthTest extends UnitTestCase
 {
-    /** @var FrozenClock */
-    private $clock;
-
     /** @var MockHandler */
     private $mockHandler;
 
-    /** @var ApiClient */
-    private $apiClient;
-
+    /** @var Generator|MockObject */
     private $tokenGenerator;
+
+    /** @var Verifier|MockObject */
     private $idTokenVerifier;
 
     /** @var Auth */
     private $auth;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->mockHandler = new MockHandler();
-        $this->clock = new FrozenClock(new DateTimeImmutable());
 
         $this->tokenGenerator = $this->createMock(Generator::class);
         $this->idTokenVerifier = $this->createMock(Verifier::class);
-        $this->apiClient = new ApiClient(new Client(['handler' => $this->mockHandler]));
-        $this->auth = new Auth($this->apiClient, $this->tokenGenerator, $this->idTokenVerifier);
+
+        $this->auth = new Auth(
+            new ApiClient(new Client(['handler' => $this->mockHandler])),
+            $this->tokenGenerator,
+            $this->idTokenVerifier
+        );
     }
 
-    public function testCreateCustomToken()
+    public function testCreateCustomToken(): void
     {
         $this->tokenGenerator
             ->expects($this->once())
@@ -67,7 +66,7 @@ final class AuthTest extends UnitTestCase
         $this->auth->createCustomToken('uid');
     }
 
-    public function testVerifyIdToken()
+    public function testVerifyIdToken(): void
     {
         $this->idTokenVerifier
             ->expects($this->once())
@@ -76,7 +75,7 @@ final class AuthTest extends UnitTestCase
         $this->auth->verifyIdToken('some id token string');
     }
 
-    public function testDisallowFutureTokens()
+    public function testDisallowFutureTokens(): void
     {
         $tokenProphecy = $this->prophesize(Token::class);
         $tokenProphecy->getClaim('iat')->willReturn(\date('U'));
@@ -92,7 +91,7 @@ final class AuthTest extends UnitTestCase
         $this->auth->verifyIdToken('foo');
     }
 
-    public function testAllowFutureTokens()
+    public function testAllowFutureTokens(): void
     {
         $tokenProphecy = $this->prophesize(Token::class);
         $tokenProphecy->getClaim('iat')->willReturn(\date('U'));
@@ -108,7 +107,7 @@ final class AuthTest extends UnitTestCase
         $this->assertSame($token, $verifiedToken);
     }
 
-    public function testFailIfUserHasBeenDeletedInTheMeantime()
+    public function testFailIfUserHasBeenDeletedInTheMeantime(): void
     {
         $uid = 'uid';
 
@@ -124,14 +123,16 @@ final class AuthTest extends UnitTestCase
         $this->idTokenVerifier->method('verifyIdToken')->with($token)->willReturn($token);
 
         $this->expectException(InvalidToken::class);
-        $this->expectExceptionMessageRegExp('/found/i');
+        $this->expectExceptionMessageMatches('/found/i');
         $this->auth->verifyIdToken($token, true);
     }
 
     /**
+     * @param mixed $settings
+     *
      * @dataProvider validActionCodeSettings
      */
-    public function testGetActionCodeLinkWithSettings($settings)
+    public function testGetActionCodeLinkWithSettings($settings): void
     {
         $this->mockHandler->append(new Response(200, ['Content-Type' => 'application/json'], JSON::encode(['oobLink' => 'https://domain.tld'])));
 
@@ -141,9 +142,11 @@ final class AuthTest extends UnitTestCase
     }
 
     /**
+     * @param mixed $settings
+     *
      * @dataProvider validActionCodeSettings
      */
-    public function testSendActionCodeLinkWithSettings($settings)
+    public function testSendActionCodeLinkWithSettings($settings): void
     {
         $this->mockHandler->append(new Response(200, ['Content-Type' => 'application/json']));
 
@@ -152,7 +155,7 @@ final class AuthTest extends UnitTestCase
         $this->addToAssertionCount(1);
     }
 
-    public function validActionCodeSettings()
+    public function validActionCodeSettings(): array
     {
         return [
             'empty' => [[]],
@@ -161,7 +164,7 @@ final class AuthTest extends UnitTestCase
         ];
     }
 
-    public function testVerifyPasswordResetCode()
+    public function testVerifyPasswordResetCode(): void
     {
         $this->mockHandler->append($this->passwordResetSuccess('user@domain.tld'));
 
@@ -169,7 +172,7 @@ final class AuthTest extends UnitTestCase
         $this->addToAssertionCount(1);
     }
 
-    public function testVerifyInvalidPasswordResetCode()
+    public function testVerifyInvalidPasswordResetCode(): void
     {
         $this->mockHandler->append($this->clientException(JSON::encode(new AuthError('invalid_oob_code'))));
 
@@ -177,7 +180,7 @@ final class AuthTest extends UnitTestCase
         $this->auth->verifyPasswordResetCode('any');
     }
 
-    public function testVerifyExpiredPasswordResetCode()
+    public function testVerifyExpiredPasswordResetCode(): void
     {
         $this->mockHandler->append($this->clientException(JSON::encode(new AuthError('expired_oob_code'))));
 
@@ -185,13 +188,13 @@ final class AuthTest extends UnitTestCase
         $this->auth->verifyPasswordResetCode('any');
     }
 
-    public function testConfirmPasswordResetWithInvalidPassword()
+    public function testConfirmPasswordResetWithInvalidPassword(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->auth->confirmPasswordReset('any', 'short'); // A password must be at least 6 chars
     }
 
-    public function testConfirmPasswordResetWithInvalidResetCode()
+    public function testConfirmPasswordResetWithInvalidResetCode(): void
     {
         $this->mockHandler->append($this->clientException(JSON::encode(new AuthError('invalid_oob_code'))));
 
@@ -199,7 +202,7 @@ final class AuthTest extends UnitTestCase
         $this->auth->confirmPasswordReset('any', 'new password');
     }
 
-    public function testConfirmPasswordResetWithExpiredResetCode()
+    public function testConfirmPasswordResetWithExpiredResetCode(): void
     {
         $this->mockHandler->append($this->clientException(JSON::encode(new AuthError('expired_oob_code'))));
 
@@ -207,7 +210,7 @@ final class AuthTest extends UnitTestCase
         $this->auth->confirmPasswordReset('any', 'new password');
     }
 
-    public function testConfirmPasswordResetWithoutSessionInvalidation()
+    public function testConfirmPasswordResetWithoutSessionInvalidation(): void
     {
         $this->mockHandler->append($this->passwordResetSuccess('email@domain.tld'));
         $this->mockHandler->append(new RuntimeException('This should not have been handled'));
@@ -216,7 +219,7 @@ final class AuthTest extends UnitTestCase
         $this->addToAssertionCount(1);
     }
 
-    public function testConfirmPasswordResetWithSessionInvalidationButWithoutEmailInTheResponse()
+    public function testConfirmPasswordResetWithSessionInvalidationButWithoutEmailInTheResponse(): void
     {
         $this->mockHandler->append($this->passwordResetSuccess());
         $this->mockHandler->append(new RuntimeException('This should not have been handled'));
@@ -232,7 +235,7 @@ final class AuthTest extends UnitTestCase
         return new ClientException('Client Exception', $this->createMock(RequestInterface::class), $response);
     }
 
-    private function passwordResetSuccess(string $email = null)
+    private function passwordResetSuccess(string $email = null): Response
     {
         return new Response(200, [], JSON::encode(\array_filter([
             'email' => $email,

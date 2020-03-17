@@ -41,10 +41,7 @@ class AuthApiExceptionConverter
         $this->responseParser = new ErrorResponseParser();
     }
 
-    /**
-     * @return AuthException
-     */
-    public function convertException(Throwable $exception): FirebaseException
+    public function convertException(Throwable $exception): AuthException
     {
         if ($exception instanceof RequestException) {
             return $this->convertGuzzleRequestException($exception);

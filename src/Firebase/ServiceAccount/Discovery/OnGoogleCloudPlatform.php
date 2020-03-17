@@ -13,9 +13,7 @@ use Kreait\GcpMetadata;
  */
 class OnGoogleCloudPlatform
 {
-    /**
-     * @var GcpMetadata
-     */
+    /** @var GcpMetadata */
     private $metadata;
 
     /**

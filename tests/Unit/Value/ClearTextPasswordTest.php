@@ -16,7 +16,7 @@ class ClearTextPasswordTest extends TestCase
     /**
      * @dataProvider validValues
      */
-    public function testWithValidValue($value)
+    public function testWithValidValue(string $value): void
     {
         $password = new ClearTextPassword($value);
 
@@ -28,7 +28,7 @@ class ClearTextPasswordTest extends TestCase
     /**
      * @dataProvider invalidValues
      */
-    public function testWithInvalidValue($value)
+    public function testWithInvalidValue(string $value): void
     {
         $this->expectException(InvalidArgumentException::class);
         new ClearTextPassword($value);

@@ -9,19 +9,13 @@ use Google\Cloud\Storage\StorageClient;
 
 class Storage
 {
-    /**
-     * @var StorageClient
-     */
+    /** @var StorageClient */
     private $storageClient;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $defaultBucket;
 
-    /**
-     * @var Bucket[]
-     */
+    /** @var Bucket[] */
     private $buckets = [];
 
     /**

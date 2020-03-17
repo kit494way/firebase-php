@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Kreait\Firebase\DynamicLink;
 
 use Countable;
+use Generator;
 use IteratorAggregate;
 
 /**
@@ -12,25 +13,25 @@ use IteratorAggregate;
  */
 final class EventStatistics implements Countable, IteratorAggregate
 {
-    const PLATFORM_ANDROID = 'ANDROID';
-    const PLATFORM_DESKTOP = 'DESKTOP';
-    const PLATFORM_IOS = 'IOS';
+    public const PLATFORM_ANDROID = 'ANDROID';
+    public const PLATFORM_DESKTOP = 'DESKTOP';
+    public const PLATFORM_IOS = 'IOS';
 
     // Any click on a Dynamic Link, irrespective to how it is handled and its destinations
-    const TYPE_CLICK = 'CLICK';
+    public const TYPE_CLICK = 'CLICK';
 
     // Attempts to redirect users, either to the App Store or Play Store to install or update the app,
     // or to some other destination
-    const TYPE_REDIRECT = 'REDIRECT';
+    public const TYPE_REDIRECT = 'REDIRECT';
 
     // Actual installs (only supported by the Play Store)
-    const TYPE_APP_INSTALL = 'APP_INSTALL';
+    public const TYPE_APP_INSTALL = 'APP_INSTALL';
 
     // First-opens after an install
-    const TYPE_APP_FIRST_OPEN = 'APP_FIRST_OPEN';
+    public const TYPE_APP_FIRST_OPEN = 'APP_FIRST_OPEN';
 
     // Re-opens of an app
-    const TYPE_APP_RE_OPEN = 'APP_RE_OPEN';
+    public const TYPE_APP_RE_OPEN = 'APP_RE_OPEN';
 
     /** @var array[] */
     private $events;
@@ -106,14 +107,16 @@ final class EventStatistics implements Countable, IteratorAggregate
 
     /**
      * @codeCoverageIgnore
+     *
+     * @return Generator|array[]
      */
-    public function getIterator()
+    public function getIterator(): Generator
     {
         yield from $this->events;
     }
 
-    public function count()
+    public function count(): int
     {
-        return \array_sum(\array_column($this->events, 'count'));
+        return (int) \array_sum(\array_column($this->events, 'count'));
     }
 }

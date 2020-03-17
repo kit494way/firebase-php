@@ -13,22 +13,28 @@ use Kreait\Firebase\Tests\UnitTestCase;
  */
 class ServiceAccountTest extends UnitTestCase
 {
+    /** @var string */
     private $validJsonFile;
+
+    /** @var string */
     private $realpathedValidJsonFile;
+
+    /** @var string */
     private $invalidJsonFile;
+
+    /** @var string */
     private $malformedJsonFile;
+
+    /** @var string */
     private $symlinkedJsonFile;
+
+    /** @var string */
     private $unreadableJsonFile;
 
-    /**
-     * @var ServiceAccount
-     */
-    private $serviceAccount;
-
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->validJsonFile = self::$fixturesDir.'/ServiceAccount/valid.json';
-        $this->realpathedValidJsonFile = \realpath($this->validJsonFile);
+        $this->realpathedValidJsonFile = (string) \realpath($this->validJsonFile);
         $this->malformedJsonFile = self::$fixturesDir.'/ServiceAccount/malformed.json';
         $this->invalidJsonFile = self::$fixturesDir.'/ServiceAccount/invalid.json';
         $this->symlinkedJsonFile = self::$fixturesDir.'/ServiceAccount/symlinked.json';
@@ -37,15 +43,15 @@ class ServiceAccountTest extends UnitTestCase
         @\chmod($this->unreadableJsonFile, 0000);
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         @\chmod($this->unreadableJsonFile, 0644);
     }
 
-    public function testGetters()
+    public function testGetters(): void
     {
         $serviceAccount = ServiceAccount::fromValue($this->validJsonFile);
-        $data = \json_decode((string) \file_get_contents($this->validJsonFile), true);
+        $data = \json_decode((string) \file_get_contents($this->validJsonFile), true, 512, \JSON_THROW_ON_ERROR);
 
         $this->assertSame($data['project_id'], $serviceAccount->getProjectId());
         $this->assertSame($data['client_id'], $serviceAccount->getClientId());
@@ -54,94 +60,90 @@ class ServiceAccountTest extends UnitTestCase
         $this->assertSame($this->validJsonFile, $serviceAccount->getFilePath());
     }
 
-    public function testCreateFromJsonText()
+    public function testCreateFromJsonText(): void
     {
-        $serviceAccount = ServiceAccount::fromValue(\file_get_contents($this->validJsonFile));
+        $serviceAccount = ServiceAccount::fromValue((string) \file_get_contents($this->validJsonFile));
         $this->assertNull($serviceAccount->getFilePath());
     }
 
-    public function testCreateFromJsonFile()
+    public function testCreateFromJsonFile(): void
     {
         $serviceAccount = ServiceAccount::fromValue($this->validJsonFile);
         $this->assertSame($this->validJsonFile, $serviceAccount->getFilePath());
     }
 
-    public function testCreateFromRealpathedJsonFile()
+    public function testCreateFromRealpathedJsonFile(): void
     {
         $serviceAccount = ServiceAccount::fromValue($this->realpathedValidJsonFile);
         $this->assertSame($this->realpathedValidJsonFile, $serviceAccount->getFilePath());
     }
 
-    public function testCreateFromSymlinkedJsonFile()
+    public function testCreateFromSymlinkedJsonFile(): void
     {
-        if ($this->onWindows()) {
-            $this->markTestSkipped('Windows only support absolute symlinks');
-        }
-
         $serviceAccount = ServiceAccount::fromValue($this->symlinkedJsonFile);
         $this->assertSame($this->symlinkedJsonFile, $serviceAccount->getFilePath());
     }
 
-    public function testCreateFromMissingFile()
+    public function testCreateFromMissingFile(): void
     {
         $this->expectException(InvalidArgumentException::class);
         ServiceAccount::fromValue('missing.json');
     }
 
-    public function testCreateFromMalformedJsonFile()
+    public function testCreateFromMalformedJsonFile(): void
     {
         $this->expectException(InvalidArgumentException::class);
         ServiceAccount::fromValue($this->malformedJsonFile);
     }
 
-    public function testCreateFromInvalidJsonFile()
+    public function testCreateFromInvalidJsonFile(): void
     {
         $this->expectException(InvalidArgumentException::class);
         ServiceAccount::fromValue($this->invalidJsonFile);
     }
 
-    public function testCreateFromDirectory()
+    public function testCreateFromDirectory(): void
     {
         $this->expectException(InvalidArgumentException::class);
         ServiceAccount::fromValue(__DIR__);
     }
 
-    public function testCreateFromUnreadableFile()
+    public function testCreateFromUnreadableFile(): void
     {
         $this->expectException(InvalidArgumentException::class);
         ServiceAccount::fromValue($this->unreadableJsonFile);
     }
 
-    public function testCreateFromArray()
+    public function testCreateFromArray(): void
     {
-        $data = \json_decode((string) \file_get_contents($this->validJsonFile), true);
+        $data = \json_decode((string) \file_get_contents($this->validJsonFile), true, 512, \JSON_THROW_ON_ERROR);
 
         $serviceAccount = ServiceAccount::fromValue($data);
         $this->addToAssertionCount(1);
         $this->assertNull($serviceAccount->getFilePath());
     }
 
-    public function testCreateFromServiceAccount()
+    public function testCreateFromServiceAccount(): void
     {
         $serviceAccount = $this->createMock(ServiceAccount::class);
 
         $this->assertSame($serviceAccount, ServiceAccount::fromValue($serviceAccount));
     }
 
-    public function testCreateFromInvalidValue()
+    public function testCreateFromInvalidValue(): void
     {
         $this->expectException(InvalidArgumentException::class);
         ServiceAccount::fromValue(false);
     }
 
-    public function testCreateWithInvalidClientEmail()
+    public function testCreateWithInvalidClientEmail(): void
     {
         $this->expectException(InvalidArgumentException::class);
 
         (new ServiceAccount())->withClientEmail('foo');
     }
 
-    public function testWithCustomDiscoverer()
+    public function testWithCustomDiscoverer(): void
     {
         $expected = $this->createMock(ServiceAccount::class);
 
@@ -158,7 +160,7 @@ class ServiceAccountTest extends UnitTestCase
      *
      * @dataProvider sanitizableProjectIdProvider
      */
-    public function testGetSanitizedProjectId($expected, $given)
+    public function testGetSanitizedProjectId(string $expected, string $given): void
     {
         $serviceAccount = ServiceAccount::fromJsonFile($this->validJsonFile)->withProjectId($given);
 
@@ -166,15 +168,10 @@ class ServiceAccountTest extends UnitTestCase
         $this->assertSame($expected, $serviceAccount->getSanitizedProjectId());
     }
 
-    public function sanitizableProjectIdProvider()
+    public function sanitizableProjectIdProvider(): array
     {
         return [
             ['example-com-api-project-xxxxxx', 'example.com:api-project-xxxxxx'],
         ];
-    }
-
-    private function onWindows()
-    {
-        return \mb_stripos(\PHP_OS, 'win') === 0;
     }
 }

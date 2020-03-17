@@ -14,7 +14,7 @@ final class RawMessageFromArray implements Message
         $this->data = $data;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return $this->data;
     }

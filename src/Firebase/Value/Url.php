@@ -12,9 +12,7 @@ use Throwable;
 
 class Url implements \JsonSerializable, Value
 {
-    /**
-     * @var UriInterface
-     */
+    /** @var UriInterface */
     private $value;
 
     /**
@@ -26,18 +24,14 @@ class Url implements \JsonSerializable, Value
     }
 
     /**
-     * @param string|UriInterface|mixed $value
+     * @param self|UriInterface|string $value
      *
      * @throws InvalidArgumentException
      */
     public static function fromValue($value): self
     {
-        if (\is_object($value) && \method_exists($value, '__toString')) {
-            $value = (string) $value;
-        }
-
         try {
-            return new self(uri_for($value));
+            return new self(uri_for((string) $value));
         } catch (Throwable $e) {
             throw new InvalidArgumentException($e->getMessage());
         }
@@ -53,7 +47,7 @@ class Url implements \JsonSerializable, Value
         return (string) $this->value;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): string
     {
         return (string) $this->value;
     }

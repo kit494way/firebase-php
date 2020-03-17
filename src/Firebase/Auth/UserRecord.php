@@ -10,64 +10,40 @@ use Kreait\Firebase\Util\JSON;
 
 class UserRecord implements \JsonSerializable
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     public $uid;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public $email;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     public $emailVerified = false;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public $displayName;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public $photoUrl;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public $phoneNumber;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     public $disabled;
 
-    /**
-     * @var UserMetaData
-     */
+    /** @var UserMetaData */
     public $metadata;
 
-    /**
-     * @var UserInfo[]
-     */
+    /** @var UserInfo[] */
     public $providerData;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public $passwordHash;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     public $customAttributes;
 
-    /**
-     * @var DateTimeImmutable|null
-     */
+    /** @var DateTimeImmutable|null */
     public $tokensValidAfterTime;
 
     public function __construct()
@@ -111,7 +87,7 @@ class UserRecord implements \JsonSerializable
         }, $data['providerUserInfo'] ?? []);
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         $data = \get_object_vars($this);
 

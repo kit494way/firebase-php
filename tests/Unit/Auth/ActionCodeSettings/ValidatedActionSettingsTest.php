@@ -15,27 +15,35 @@ final class ValidatedActionSettingsTest extends TestCase
 {
     /**
      * @test
+     *
+     * @param array $input
+     * @param array $expected
+     *
      * @dataProvider validInputs
      */
-    public function it_works_valid_settings($input, $expected)
+    public function it_works_valid_settings($input, $expected): void
     {
         $this->assertEquals($expected, ValidatedActionCodeSettings::fromArray($input)->toArray());
     }
 
-    /** @test */
-    public function it_rejects_invalid_settings()
+    /**
+     * @test
+     */
+    public function it_rejects_invalid_settings(): void
     {
         $this->expectException(InvalidArgumentException::class);
         ValidatedActionCodeSettings::fromArray(['foo' => 'bar']);
     }
 
-    /** @test */
-    public function it_can_be_empty()
+    /**
+     * @test
+     */
+    public function it_can_be_empty(): void
     {
         $this->assertEmpty(ValidatedActionCodeSettings::empty()->toArray());
     }
 
-    public function validInputs()
+    public function validInputs(): array
     {
         $continueUrl = 'https://domain.tld';
 

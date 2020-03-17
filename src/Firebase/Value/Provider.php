@@ -8,19 +8,17 @@ use Kreait\Firebase\Value;
 
 class Provider implements \JsonSerializable, Value
 {
-    const ANONYMOUS = 'anonymous';
-    const CUSTOM = 'custom';
-    const FACEBOOK = 'facebook.com';
-    const FIREBASE = 'firebase';
-    const GITHUB = 'github.com';
-    const GOOGLE = 'google.com';
-    const PASSWORD = 'password';
-    const PHONE = 'phone';
-    const TWITTER = 'twitter.com';
+    public const ANONYMOUS = 'anonymous';
+    public const CUSTOM = 'custom';
+    public const FACEBOOK = 'facebook.com';
+    public const FIREBASE = 'firebase';
+    public const GITHUB = 'github.com';
+    public const GOOGLE = 'google.com';
+    public const PASSWORD = 'password';
+    public const PHONE = 'phone';
+    public const TWITTER = 'twitter.com';
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $value;
 
     /**
@@ -31,12 +29,12 @@ class Provider implements \JsonSerializable, Value
         $this->value = $value;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return $this->value;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): string
     {
         return $this->value;
     }

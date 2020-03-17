@@ -23,7 +23,7 @@ class SendReport
     {
     }
 
-    public static function success(MessageTarget $target, $response): self
+    public static function success(MessageTarget $target, ?array $response): self
     {
         $report = new self();
         $report->target = $target;
@@ -73,18 +73,12 @@ class SendReport
         return $this->error instanceof NotFound;
     }
 
-    /**
-     * @return array|null
-     */
-    public function result()
+    public function result(): ?array
     {
         return $this->result;
     }
 
-    /**
-     * @return Throwable|null
-     */
-    public function error()
+    public function error(): ?Throwable
     {
         return $this->error;
     }

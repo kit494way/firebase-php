@@ -67,7 +67,7 @@ final class AndroidInfo implements JsonSerializable
         return $info;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return $this->data;
     }

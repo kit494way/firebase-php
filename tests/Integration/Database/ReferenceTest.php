@@ -15,15 +15,18 @@ class ReferenceTest extends DatabaseTestCase
     /** @var Reference */
     private $ref;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->ref = self::$db->getReference(self::$refPrefix);
     }
 
     /**
+     * @param string $key
+     * @param mixed $value
+     *
      * @dataProvider validValues
      */
-    public function testSetAndGet($key, $value)
+    public function testSetAndGet($key, $value): void
     {
         $ref = $this->ref->getChild(__FUNCTION__.'/'.$key);
         $ref->set($value);
@@ -31,7 +34,7 @@ class ReferenceTest extends DatabaseTestCase
         $this->assertSame($value, $ref->getValue());
     }
 
-    public function testUpdate()
+    public function testUpdate(): void
     {
         $ref = $this->ref->getChild(__FUNCTION__);
         $ref->set([
@@ -53,7 +56,7 @@ class ReferenceTest extends DatabaseTestCase
         $this->assertEquals($expected, $ref->getValue());
     }
 
-    public function testPush()
+    public function testPush(): void
     {
         $ref = $this->ref->getChild(__FUNCTION__);
         $value = 'a value';
@@ -64,7 +67,7 @@ class ReferenceTest extends DatabaseTestCase
         $this->assertSame($value, $newRef->getValue());
     }
 
-    public function testRemove()
+    public function testRemove(): void
     {
         $ref = $this->ref->getChild(__FUNCTION__);
 
@@ -78,16 +81,16 @@ class ReferenceTest extends DatabaseTestCase
         $this->assertEquals(['second' => 'value'], $ref->getValue());
     }
 
-    public function testPushToGetKey()
+    public function testPushToGetKey(): void
     {
         $ref = $this->ref->getChild(__FUNCTION__);
         $key = $ref->push()->getKey();
 
-        $this->assertInternalType('string', $key);
+        $this->assertIsString($key);
         $this->assertSame(0, $ref->getSnapshot()->numChildren());
     }
 
-    public function testSetWithNullIsSameAsRemove()
+    public function testSetWithNullIsSameAsRemove(): void
     {
         $ref = $this->ref->getChild(__FUNCTION__);
 
@@ -101,7 +104,7 @@ class ReferenceTest extends DatabaseTestCase
         $this->assertSame(0, $ref->getSnapshot()->numChildren());
     }
 
-    public function validValues()
+    public function validValues(): array
     {
         return [
             'string' => ['string', 'value'],
