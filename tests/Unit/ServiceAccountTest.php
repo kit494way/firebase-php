@@ -134,25 +134,6 @@ class ServiceAccountTest extends UnitTestCase
         ServiceAccount::fromValue(false);
     }
 
-    public function testCreateWithInvalidClientEmail()
-    {
-        $this->expectException(InvalidArgumentException::class);
-
-        (new ServiceAccount())->withClientEmail('foo');
-    }
-
-    public function testWithCustomDiscoverer()
-    {
-        $expected = $this->createMock(ServiceAccount::class);
-
-        $discoverer = $this->createMock(ServiceAccount\Discoverer::class);
-        $discoverer
-            ->method('discover')
-            ->willReturn($expected);
-
-        $this->assertSame($expected, ServiceAccount::discover($discoverer));
-    }
-
     /**
      * @see https://github.com/kreait/firebase-php/issues/228
      *

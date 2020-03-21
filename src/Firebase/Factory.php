@@ -5,17 +5,22 @@ declare(strict_types=1);
 namespace Kreait\Firebase;
 
 use Firebase\Auth\Token\Cache\InMemoryCache;
-use Firebase\Auth\Token\Domain\Generator;
-use Firebase\Auth\Token\Generator as CustomTokenGenerator;
+use Firebase\Auth\Token\Domain\Generator as LegacyCustomTokenGeneratorContract;
+use Firebase\Auth\Token\Domain\Verifier as LegacyIdTokenVerifierContract;
+use Firebase\Auth\Token\Generator as LegacyCustomTokenGenerator;
+use Firebase\Auth\Token\Verifier as LegacyIdTokenVerifier;
 use Firebase\Auth\Token\HttpKeyStore;
-use Firebase\Auth\Token\Verifier;
-use Google\Auth\Credentials\GCECredentials;
-use Google\Auth\Credentials\ServiceAccountCredentials;
+use Google\Auth\ApplicationDefaultCredentials;
+use Google\Auth\CredentialsLoader;
 use Google\Auth\Middleware\AuthTokenMiddleware;
 use Google\Cloud\Firestore\FirestoreClient;
 use Google\Cloud\Storage\StorageClient;
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
+use Kreait\Firebase\Auth\IdTokenVerifier;
+use Kreait\Firebase\Auth\NonFunctionalLegacyCustomTokenGenerator;
+use Kreait\Firebase\Auth\NonFunctionalLegacyIdTokenVerifier;
+use Kreait\Firebase\Value\ProjectId;
 use function GuzzleHttp\Psr7\uri_for;
 use Kreait\Clock;
 use Kreait\Clock\SystemClock;
@@ -24,9 +29,7 @@ use Kreait\Firebase\Auth\CustomTokenViaGoogleIam;
 use Kreait\Firebase\Exception\LogicException;
 use Kreait\Firebase\Exception\RuntimeException;
 use Kreait\Firebase\Http\Middleware;
-use Kreait\Firebase\ServiceAccount\Discoverer;
 use Kreait\Firebase\Value\Url;
-use Kreait\GcpMetadata;
 use Psr\Http\Message\UriInterface;
 use Psr\SimpleCache\CacheInterface;
 use Throwable;
@@ -45,6 +48,11 @@ class Factory
     ];
 
     /**
+     * @var ProjectId|null
+     */
+    protected $projectId;
+
+    /**
      * @var UriInterface|null
      */
     protected $databaseUri;
@@ -58,11 +66,6 @@ class Factory
      * @var ServiceAccount|null
      */
     protected $serviceAccount;
-
-    /**
-     * @var Discoverer|null
-     */
-    protected $serviceAccountDiscoverer;
 
     /**
      * @var string|null
@@ -89,6 +92,11 @@ class Factory
      */
     protected $httpClientMiddlewares = [];
 
+    /**
+     * @var bool
+     */
+    protected $discoveryIsDisabled = false;
+
     protected static $databaseUriPattern = 'https://%s.firebaseio.com';
 
     protected static $storageBucketNamePattern = '%s.appspot.com';
@@ -98,7 +106,6 @@ class Factory
 
     public function __construct()
     {
-        $this->serviceAccountDiscoverer = new Discoverer();
         $this->clock = new SystemClock();
     }
 
@@ -109,21 +116,38 @@ class Factory
         $factory = clone $this;
         $factory->serviceAccount = $serviceAccount;
 
-        return $factory->withDisabledAutoDiscovery();
+        return $factory
+            ->withProjectId($serviceAccount->getProjectId())
+            ->withDisabledAutoDiscovery();
     }
 
-    public function withServiceAccountDiscoverer(Discoverer $discoverer): self
+    public function withProjectId(string $projectId): self
     {
         $factory = clone $this;
-        $factory->serviceAccountDiscoverer = $discoverer;
+        $factory->projectId = new ProjectId($projectId);
 
         return $factory;
+    }
+
+    public function withSuppressedWarnings(): self
+    {
+        putenv('SUPPRESS_GCLOUD_CREDS_WARNING=true');
+
+        return $this;
+    }
+
+    /**
+     * @deprecated 4.42.0 This method has no effect anymore
+     */
+    public function withServiceAccountDiscoverer(): self
+    {
+        return $this;
     }
 
     public function withDisabledAutoDiscovery(): self
     {
         $factory = clone $this;
-        $factory->serviceAccountDiscoverer = null;
+        $factory->discoveryIsDisabled = true;
 
         return $factory;
     }
@@ -207,37 +231,62 @@ class Factory
         return new Firebase($this);
     }
 
-    protected function getServiceAccount(): ServiceAccount
+    /**
+     * @return ServiceAccount|null
+     */
+    protected function getServiceAccount()
     {
-        if (!$this->serviceAccount && $this->serviceAccountDiscoverer) {
-            $this->serviceAccount = $this->serviceAccountDiscoverer->discover();
+        if ($this->serviceAccount) {
+            return $this->serviceAccount;
         }
 
-        if (!$this->serviceAccount) {
-            throw new LogicException('No service account has been configured.');
+        if ($credentials = getenv('FIREBASE_CREDENTIALS')) {
+            return $this->serviceAccount = ServiceAccount::fromValue($credentials);
         }
 
-        return $this->serviceAccount;
+        return null;
+    }
+
+    /**
+     * @return ProjectId|null
+     */
+    protected function getProjectId()
+    {
+        if ($this->projectId) {
+            return $this->projectId;
+        }
+
+        if ($serviceAccount = $this->getServiceAccount()) {
+            return $this->projectId = new ProjectId($serviceAccount->getProjectId());
+        }
+
+        return null;
     }
 
     protected function getDatabaseUri(): UriInterface
     {
-        return $this->databaseUri ?: $this->getDatabaseUriFromServiceAccount($this->getServiceAccount());
+        if ($this->databaseUri) {
+            return $this->databaseUri;
+        }
+
+        if ($projectId = $this->getProjectId()) {
+            return uri_for(\sprintf(self::$databaseUriPattern, $projectId->sanitizedValue()));
+        }
+
+        throw new LogicException('Unable to determine database URI.');
     }
 
     protected function getStorageBucketName(): string
     {
-        return $this->defaultStorageBucket ?: $this->getStorageBucketNameFromServiceAccount($this->getServiceAccount());
-    }
+        if ($this->defaultStorageBucket) {
+            return $this->defaultStorageBucket;
+        }
 
-    protected function getDatabaseUriFromServiceAccount(ServiceAccount $serviceAccount): UriInterface
-    {
-        return uri_for(\sprintf(self::$databaseUriPattern, $serviceAccount->getSanitizedProjectId()));
-    }
+        if ($projectId = $this->getProjectId()) {
+            return \sprintf(self::$storageBucketNamePattern, $projectId->sanitizedValue());
+        }
 
-    protected function getStorageBucketNameFromServiceAccount(ServiceAccount $serviceAccount): string
-    {
-        return \sprintf(self::$storageBucketNamePattern, $serviceAccount->getSanitizedProjectId());
+        throw new LogicException('Unable to determine storage bucket name.');
     }
 
     public function createAuth(): Auth
@@ -247,26 +296,52 @@ class Factory
         ]);
         $apiClient = new Auth\ApiClient($http);
 
-        $serviceAccount = $this->getServiceAccount();
 
         $customTokenGenerator = $this->createCustomTokenGenerator();
-        $keyStore = new HttpKeyStore(new Client(), $this->verifierCache ?: new InMemoryCache());
-        $baseVerifier = new Verifier($serviceAccount->getSanitizedProjectId(), $keyStore);
-        $idTokenVerifier = new Firebase\Auth\IdTokenVerifier($baseVerifier, $this->clock);
+        $idTokenVerifier = $this->createIdTokenVerifier();
+
         $signInHandler = new Firebase\Auth\SignIn\GuzzleHandler($http);
 
         return new Auth($apiClient, $customTokenGenerator, $idTokenVerifier, $signInHandler);
     }
 
-    public function createCustomTokenGenerator(): Generator
+    public function createCustomTokenGenerator(): LegacyCustomTokenGeneratorContract
     {
-        $serviceAccount = $this->getServiceAccount();
+        if ($serviceAccount = $this->getServiceAccount()) {
+            $privateKey = $serviceAccount->getPrivateKey();
+            $clientEmail = $serviceAccount->getClientEmail();
 
-        if ($serviceAccount->hasPrivateKey()) {
-            return new CustomTokenGenerator($serviceAccount->getClientEmail(), $serviceAccount->getPrivateKey());
+            if ($privateKey !== '' && $clientEmail !== '') {
+                return new LegacyCustomTokenGenerator($serviceAccount->getClientEmail(), $serviceAccount->getPrivateKey());
+            }
+
+            if ($clientEmail !== '') {
+                return new CustomTokenViaGoogleIam($clientEmail, $this->createApiClient());
+            }
         }
 
-        return new CustomTokenViaGoogleIam($serviceAccount->getClientEmail(), $this->createApiClient());
+        return new NonFunctionalLegacyCustomTokenGenerator(
+            "The provided authentication credentials don't allow the generation of custom tokens"
+        );
+    }
+
+    protected function createLegacyIdTokenVerifier(): LegacyIdTokenVerifierContract
+    {
+        if ($projectId = $this->getProjectId()) {
+            $keyStore = new HttpKeyStore(new Client(), $this->verifierCache ?: new InMemoryCache());
+            return new LegacyIdTokenVerifier($projectId->sanitizedValue(), $keyStore);
+        }
+
+        return new NonFunctionalLegacyIdTokenVerifier(
+            "The provided authentication credentials don't allow the verification of ID tokens"
+        );
+    }
+
+    public function createIdTokenVerifier(): LegacyIdTokenVerifierContract
+    {
+        $baseVerifier = $this->createLegacyIdTokenVerifier();
+
+        return new IdTokenVerifier($baseVerifier, $this->clock);
     }
 
     public function createDatabase(): Database
@@ -295,8 +370,10 @@ class Factory
 
     public function createRemoteConfig(): RemoteConfig
     {
+        $projectId = $this->getProjectId();
+
         $http = $this->createApiClient([
-            'base_uri' => 'https://firebaseremoteconfig.googleapis.com/v1/projects/'.$this->getServiceAccount()->getSanitizedProjectId().'/remoteConfig',
+            'base_uri' => "https://firebaseremoteconfig.googleapis.com/v1/projects/{$projectId}/remoteConfig",
         ]);
 
         return new RemoteConfig(new RemoteConfig\ApiClient($http));
@@ -304,7 +381,7 @@ class Factory
 
     public function createMessaging(): Messaging
     {
-        $projectId = $this->getServiceAccount()->getProjectId();
+        $projectId = $this->getProjectId();
 
         $messagingApiClient = new Messaging\ApiClient(
             $this->createApiClient([
@@ -384,8 +461,6 @@ class Factory
         // If present, the config given to this method override fields passed to withHttpClientConfig()
         $config = \array_merge($this->httpClientConfig, $config);
 
-        $googleAuthTokenMiddleware = $this->createGoogleAuthTokenMiddleware();
-
         $handler = $config['handler'] ?? null;
 
         if (!($handler instanceof HandlerStack)) {
@@ -396,7 +471,7 @@ class Factory
             $handler->push($middleware);
         }
 
-        $handler->push($googleAuthTokenMiddleware);
+        $handler->push($this->createGoogleAuthTokenMiddleware());
         $handler->push(Middleware::responseWithSubResponses());
 
         $config['handler'] = $handler;
@@ -407,48 +482,48 @@ class Factory
 
     protected function createGoogleAuthTokenMiddleware(): AuthTokenMiddleware
     {
-        $serviceAccount = $this->getServiceAccount();
-
-        if ($serviceAccount->hasClientId() && $serviceAccount->hasPrivateKey()) {
-            $credentials = new ServiceAccountCredentials(self::API_CLIENT_SCOPES, [
-                'client_email' => $serviceAccount->getClientEmail(),
-                'client_id' => $serviceAccount->getClientId(),
-                'private_key' => $serviceAccount->getPrivateKey(),
-            ]);
-        } elseif ((new GcpMetadata())->isAvailable()) {
-            // @codeCoverageIgnoreStart
-            // We can't test this programatically when not on GCE/GCP
-            $credentials = new GCECredentials();
-        // @codeCoverageIgnoreEnd
-        } else {
-            throw new RuntimeException('Unable to determine credentials.');
+        if ($serviceAccount = $this->getServiceAccount()) {
+            return new AuthTokenMiddleware(
+                CredentialsLoader::makeCredentials(self::API_CLIENT_SCOPES, $serviceAccount->asArray())
+            );
         }
 
-        return new AuthTokenMiddleware($credentials);
+        if (!$this->discoveryIsDisabled) {
+            return ApplicationDefaultCredentials::getMiddleware(self::API_CLIENT_SCOPES);
+        }
+
+        throw new LogicException('Unable to retrieve credentials.');
     }
 
     protected function googleClientAuthConfig(): array
     {
-        try {
-            $serviceAccount = $this->getServiceAccount();
-        } catch (LogicException $e) {
-            $serviceAccount = null;
+        if ($serviceAccount = $this->getServiceAccount()) {
+            if ($filePath = $serviceAccount->getFilePath()) {
+                return [
+                    'keyFilePath' => $filePath,
+                ];
+            }
+
+            $clientId = $serviceAccount->getClientId();
+            $privateKey = $serviceAccount->getPrivateKey();
+
+            if ($clientId !== '' && $privateKey !== '') {
+                return [
+                    'keyFile' => [
+                        'client_email' => $serviceAccount->getClientEmail(),
+                        'client_id' => $serviceAccount->getClientId(),
+                        'private_key' => $serviceAccount->getPrivateKey(),
+                        'project_id' => $serviceAccount->getProjectId(),
+                        'type' => 'service_account',
+                    ],
+                ];
+            }
         }
 
-        $config = [];
-
-        if ($serviceAccount && $filePath = $serviceAccount->getFilePath()) {
-            $config['keyFilePath'] = $filePath;
-        } elseif ($serviceAccount && $serviceAccount->hasClientId() && $serviceAccount->hasPrivateKey()) {
-            $config['keyFile'] = \array_filter([
-                'client_email' => $serviceAccount->getClientEmail(),
-                'client_id' => $serviceAccount->getClientId(),
-                'private_key' => $serviceAccount->getPrivateKey(),
-                'project_id' => $serviceAccount->getProjectId(),
-                'type' => 'service_account',
-            ]);
+        if ($this->discoveryIsDisabled) {
+            throw new LogicException('Unable to retrieve credentials.');
         }
 
-        return $config;
+        return [];
     }
 }

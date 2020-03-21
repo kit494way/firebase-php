@@ -16,6 +16,7 @@ use Kreait\Firebase\Messaging\AppInstanceApiClient;
 use Kreait\Firebase\Messaging\CloudMessage;
 use Kreait\Firebase\Messaging\RegistrationToken;
 use Kreait\Firebase\Tests\UnitTestCase;
+use Kreait\Firebase\Value\ProjectId;
 use stdClass;
 
 /**
@@ -34,7 +35,7 @@ class MessagingTest extends UnitTestCase
         $this->messagingApi = $this->createMock(ApiClient::class);
         $this->appInstanceApi = $this->createMock(AppInstanceApiClient::class);
 
-        $this->messaging = new Messaging($this->messagingApi, $this->appInstanceApi, 'project-id');
+        $this->messaging = new Messaging($this->messagingApi, $this->appInstanceApi, new ProjectId('project-id'));
     }
 
     public function testDetermineProjectIdFromClientConfig()

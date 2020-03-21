@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Kreait\Firebase;
 
-use Firebase\Auth\Token\Domain\Generator as TokenGenerator;
-use Firebase\Auth\Token\Domain\Verifier;
+use Firebase\Auth\Token\Domain\Generator as LegacyTokenGenerator;
+use Firebase\Auth\Token\Domain\Verifier as LegacyIdTokenVerifier;
 use Firebase\Auth\Token\Exception\ExpiredToken;
 use Firebase\Auth\Token\Exception\InvalidSignature;
 use Firebase\Auth\Token\Exception\InvalidToken;
@@ -56,17 +56,17 @@ class Auth
     /** @var ApiClient */
     private $client;
 
-    /** @var TokenGenerator */
-    private $tokenGenerator;
+    /** @var LegacyTokenGenerator */
+    private $legacyTokenGenerator;
 
-    /** @var Verifier */
-    private $idTokenVerifier;
+    /** @var LegacyIdTokenVerifier */
+    private $legacyIdTokenVerifier;
 
     /** @var SignInHandler */
     private $signInHandler;
 
     /**
-     * @param array<int, ApiClient|TokenGenerator|Verifier|Clock|SignInHandler> $x
+     * @param array<int, ApiClient|LegacyTokenGenerator|LegacyIdTokenVerifier|Clock|SignInHandler> $x
      *
      * @internal
      */
@@ -75,10 +75,10 @@ class Auth
         foreach ($x as $arg) {
             if ($arg instanceof ApiClient) {
                 $this->client = $arg;
-            } elseif ($arg instanceof TokenGenerator) {
-                $this->tokenGenerator = $arg;
-            } elseif ($arg instanceof Verifier) {
-                $this->idTokenVerifier = $arg;
+            } elseif ($arg instanceof LegacyTokenGenerator) {
+                $this->legacyTokenGenerator = $arg;
+            } elseif ($arg instanceof LegacyIdTokenVerifier) {
+                $this->legacyIdTokenVerifier = $arg;
             } elseif ($arg instanceof SignInHandler) {
                 $this->signInHandler = $arg;
             }
@@ -534,7 +534,7 @@ class Auth
     {
         $uid = $uid instanceof Uid ? $uid : new Uid($uid);
 
-        return $this->tokenGenerator->createCustomToken($uid, $claims);
+        return $this->legacyTokenGenerator->createCustomToken($uid, $claims);
     }
 
     public function parseJWT(string $token)
@@ -576,7 +576,7 @@ class Auth
         // @codeCoverageIgnoreEnd
 
         $leewayInSeconds = 300;
-        $verifier = $this->idTokenVerifier;
+        $verifier = $this->legacyIdTokenVerifier;
 
         if ($verifier instanceof IdTokenVerifier) {
             $verifier = $verifier->withLeewayInSeconds($leewayInSeconds);

@@ -43,13 +43,19 @@ final class FactoryForFirestoreTest extends UnitTestCase
     {
         \putenv('GOOGLE_APPLICATION_CREDENTIALS='.self::$fixturesDir.'/ServiceAccount/valid.json');
 
-        try {
-            (new Factory())->withDisabledAutoDiscovery()->createFirestore();
-            $this->addToAssertionCount(1);
-        } catch (Throwable $e) {
-            $this->fail('A Firestore instance should have been created');
-        } finally {
-            \putenv('GOOGLE_APPLICATION_CREDENTIALS');
-        }
+        (new Factory())->createFirestore();
+        $this->addToAssertionCount(1);
+
+        \putenv('GOOGLE_APPLICATION_CREDENTIALS');
+    }
+
+    public function testCreateFirestoreWithFirebaseCredentials()
+    {
+        \putenv('FIREBASE_CREDENTIALS='.self::$fixturesDir.'/ServiceAccount/valid.json');
+
+        (new Factory())->createFirestore();
+        $this->addToAssertionCount(1);
+
+        \putenv('FIREBASE_CREDENTIALS');
     }
 }

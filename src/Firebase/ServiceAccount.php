@@ -11,11 +11,9 @@ use Throwable;
 
 class ServiceAccount
 {
-    private $projectId;
-    private $sanitizedProjectId;
-    private $clientId;
-    private $clientEmail;
-    private $privateKey;
+    /** @var array */
+    private $data = [];
+
     /** @var string|null */
     private $filePath;
 
@@ -29,77 +27,105 @@ class ServiceAccount
 
     public function getProjectId(): string
     {
-        return $this->projectId;
+        return $this->data['project_id'] ?? '';
     }
 
+    /**
+     * @deprecated 4.42.0
+     * @codeCoverageIgnore
+     */
     public function getSanitizedProjectId(): string
     {
-        if (!$this->sanitizedProjectId) {
-            $this->sanitizedProjectId = \preg_replace('/[^A-Za-z0-9\-]/', '-', $this->projectId);
-        }
-
-        return $this->sanitizedProjectId;
+        return \preg_replace('/[^A-Za-z0-9\-]/', '-', $this->getProjectId());
     }
 
     public function withProjectId(string $value): self
     {
         $serviceAccount = clone $this;
-        $serviceAccount->projectId = $value;
-        $serviceAccount->sanitizedProjectId = null;
+        $serviceAccount->data['project_id'] = $value;
 
         return $serviceAccount;
     }
 
+    /**
+     * @deprecated 4.42.0
+     * @codeCoverageIgnore
+     */
     public function hasClientId(): bool
     {
-        return (bool) $this->clientId;
+        return $this->getClientId() !== '';
     }
 
     public function getClientId(): string
     {
-        return $this->clientId;
+        return $this->data['client_id'] ?? '';
     }
 
+    /**
+     * @deprecated 4.42.0
+     * @codeCoverageIgnore
+     */
     public function withClientId(string $value): self
     {
         $serviceAccount = clone $this;
-        $serviceAccount->clientId = $value;
+        $serviceAccount->data['client_id'] = $value;
 
         return $serviceAccount;
     }
 
     public function getClientEmail(): string
     {
-        return $this->clientEmail;
+        return $this->data['client_email'] ?? '';
     }
 
+    /**
+     * @deprecated 4.42.0
+     * @codeCoverageIgnore
+     */
     public function withClientEmail(string $value): self
     {
         if (!\filter_var($value, \FILTER_VALIDATE_EMAIL)) {
             throw new InvalidArgumentException(\sprintf('"%s" is not a valid email.', $value));
         }
+
         $serviceAccount = clone $this;
-        $serviceAccount->clientEmail = $value;
+        $serviceAccount->data['client_email'] = $value;
 
         return $serviceAccount;
     }
 
+    /**
+     * @deprecated 4.42.0
+     * @codeCoverageIgnore
+     */
     public function hasPrivateKey(): bool
     {
-        return (bool) $this->privateKey;
+        return $this->getPrivateKey() !== '';
     }
 
     public function getPrivateKey(): string
     {
-        return $this->privateKey;
+        return $this->data['private_key'] ?? '';
     }
 
+    /**
+     * @deprecated 4.42.0
+     * @codeCoverageIgnore
+     */
     public function withPrivateKey(string $value): self
     {
         $serviceAccount = clone $this;
-        $serviceAccount->privateKey = \str_replace('\n', "\n", $value);
+        $serviceAccount->data['private_key'] = \str_replace('\n', "\n", $value);
 
         return $serviceAccount;
+    }
+
+    public function asArray(): array
+    {
+        $array = $this->data;
+        $array['type'] = $array['type'] ?? 'service_account';
+
+        return $array;
     }
 
     /**
@@ -159,11 +185,10 @@ class ServiceAccount
             );
         }
 
-        return (new self())
-            ->withProjectId($config['project_id'])
-            ->withClientId($config['client_id'])
-            ->withClientEmail($config['client_email'])
-            ->withPrivateKey($config['private_key']);
+        $serviceAccount = new self();
+        $serviceAccount->data = $config;
+
+        return $serviceAccount;
     }
 
     public static function fromJson(string $json): self
@@ -200,13 +225,18 @@ class ServiceAccount
     public static function withProjectIdAndServiceAccountId(string $projectId, string $serviceAccountId): self
     {
         $serviceAccount = new self();
-        $serviceAccount->projectId = $projectId;
-        $serviceAccount->clientEmail = $serviceAccountId;
+        $serviceAccount->data = [
+            'project_id' => $projectId,
+            'client_email' => $serviceAccountId,
+        ];
 
         return $serviceAccount;
     }
 
     /**
+     * @deprecated 4.42.0
+     * @codeCoverageIgnore
+     *
      * @return ServiceAccount
      */
     public static function discover(Discoverer $discoverer = null): self

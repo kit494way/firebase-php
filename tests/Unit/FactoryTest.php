@@ -40,7 +40,7 @@ class FactoryTest extends UnitTestCase
             ->method('discover')
             ->willReturn($this->serviceAccount);
 
-        $this->factory = (new Factory())->withServiceAccountDiscoverer($discoverer);
+        $this->factory = (new Factory())->withServiceAccount($this->serviceAccount);
     }
 
     public function testItAcceptsACustomDatabaseUri()
@@ -105,7 +105,7 @@ class FactoryTest extends UnitTestCase
     public function testServiceAccountDiscoveryCanBeDisabled()
     {
         $this->expectException(LogicException::class);
-        $this->factory->withDisabledAutoDiscovery()->createAuth();
+        (new Factory)->withDisabledAutoDiscovery()->createAuth();
     }
 
     public function testDynamicLinksCanBeCreatedWithoutADefaultDomain()
